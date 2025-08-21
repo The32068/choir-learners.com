@@ -1,0 +1,5564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], select {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Choir Vocal Coach</h1>
+
+  <!-- SONG INPUTS -->
+  <div class="song-input">
+    <h2>Add a New Song</h2>
+    <form id="songForm">
+      <label for="songName">Song Name:</label>
+      <input type="text" id="songName" required>
+
+      <label for="performance">Performance Recording:</label>
+      <input type="file" id="performance" accept="audio/*">
+
+      <label for="track">Instrumental Track:</label>
+      <input type="file" id="track" accept="audio/*">
+
+      <label for="sheet">PDF Sheet Music:</label>
+      <input type="file" id="sheet" accept=".pdf">
+
+      <label for="part">Select Choir Part:</label>
+      <select id="part" required>
+        <option value="">--Choose your part--</option>
+        <option value="soprano">Soprano</option>
+        <option value="alto">Alto</option>
+        <option value="tenor">Tenor</option>
+        <option value="bass">Bass</option>
+      </select>
+
+      <button type="submit">Add Song</button>
+    </form>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+    <h2>My Dashboard</h2>
+    <div id="songList">
+      <p><em>No songs added yet.</em></p>
+    </div>
+  </div>
+
+  <script>
+    const songForm = document.getElementById("songForm");
+    const songList = document.getElementById("songList");
+
+    songForm.addEventListener("submit", function(e){
+      e.preventDefault();
+
+      const songName = document.getElementById("songName").value;
+      const choirPart = document.getElementById("part").value;
+
+      // Create song element
+      const songDiv = document.createElement("div");
+      songDiv.className = "song";
+      songDiv.dataset.progress = 0;
+
+      songDiv.innerHTML = `
+        <h3>${songName} (${choirPart})</h3>
+        <p>Progress: <span class="progress-text">0%</span></p>
+        <progress value="0" max="100"></progress><br>
+        <button class="start-btn">Start</button>
+        <button class="resume-btn" style="display:none;">Resume</button>
+        <button class="restart-btn" disabled>Restart</button>
+      `;
+
+      // Replace "no songs" message
+      if(songList.querySelector("p")) {
+        songList.innerHTML = "";
+      }
+
+      songList.appendChild(songDiv);
+
+      // Reset form
+      songForm.reset();
+
+      // Buttons functionality
+      const startBtn = songDiv.querySelector(".start-btn");
+      const resumeBtn = songDiv.querySelector(".resume-btn");
+      const restartBtn = songDiv.querySelector(".restart-btn");
+      const progressBar = songDiv.querySelector("progress");
+      const progressText = songDiv.querySelector(".progress-text");
+
+      startBtn.addEventListener("click", () => {
+        startBtn.style.display = "none";
+        resumeBtn.style.display = "inline-block";
+        alert("Started learning " + songName);
+      });
+
+      resumeBtn.addEventListener("click", () => {
+        let newProgress = Math.min(parseInt(progressBar.value) + 10, 100);
+        progressBar.value = newProgress;
+        progressText.textContent = newProgress + "%";
+
+        if(newProgress === 100){
+          restartBtn.disabled = false;
+          alert(songName + " completed!");
+        }
+      });
+
+      restartBtn.addEventListener("click", () => {
+        progressBar.value = 0;
+        progressText.textContent = "0%";
+        restartBtn.disabled = true;
+        alert(songName + " restarted!");
+      });
+    });
+  </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Persistent Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], input[type="text"], select {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Choir Vocal Coach</h1>
+
+  <!-- SONG INPUTS -->
+  <div class="song-input">
+    <h2>Add a New Song</h2>
+    <form id="songForm">
+      <label for="songName">Song Name:</label>
+      <input type="text" id="songName" required>
+
+      <label for="part">Select Choir Part:</label>
+      <select id="part" required>
+        <option value="">--Choose your part--</option>
+        <option value="soprano">Soprano</option>
+        <option value="alto">Alto</option>
+        <option value="tenor">Tenor</option>
+        <option value="bass">Bass</option>
+      </select>
+
+      <button type="submit">Add Song</button>
+    </form>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+    <h2>My Dashboard</h2>
+    <div id="songList">
+      <p><em>No songs added yet.</em></p>
+    </div>
+  </div>
+
+  <script>
+    const songForm = document.getElementById("songForm");
+    const songList = document.getElementById("songList");
+
+    // Load songs from localStorage
+    let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+    function saveSongs() {
+      localStorage.setItem("songs", JSON.stringify(songs));
+    }
+
+    function renderSongs() {
+      songList.innerHTML = "";
+      if(songs.length === 0){
+        songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+        return;
+      }
+
+      songs.forEach((song, index) => {
+        const songDiv = document.createElement("div");
+        songDiv.className = "song";
+        songDiv.dataset.index = index;
+        songDiv.innerHTML = `
+          <h3>${song.name} (${song.part})</h3>
+          <p>Progress: <span class="progress-text">${song.progress}%</span></p>
+          <progress value="${song.progress}" max="100"></progress><br>
+          <button class="start-btn"${song.progress>0?" style='display:none;'":""}>Start</button>
+          <button class="resume-btn"${song.progress>0?"":" style='display:none;'"}>Resume</button>
+          <button class="restart-btn"${song.progress===100?"":" disabled"}>Restart</button>
+        `;
+        songList.appendChild(songDiv);
+
+        // Buttons
+        const startBtn = songDiv.querySelector(".start-btn");
+        const resumeBtn = songDiv.querySelector(".resume-btn");
+        const restartBtn = songDiv.querySelector(".restart-btn");
+        const progressBar = songDiv.querySelector("progress");
+        const progressText = songDiv.querySelector(".progress-text");
+
+        startBtn?.addEventListener("click", () => {
+          startBtn.style.display = "none";
+          resumeBtn.style.display = "inline-block";
+          alert(`Started learning ${song.name}`);
+        });
+
+        resumeBtn?.addEventListener("click", () => {
+          let newProgress = Math.min(song.progress + 10, 100);
+          song.progress = newProgress;
+          progressBar.value = newProgress;
+          progressText.textContent = newProgress + "%";
+
+          if(newProgress === 100){
+            restartBtn.disabled = false;
+            alert(`${song.name} completed!`);
+          }
+
+          saveSongs();
+        });
+
+        restartBtn?.addEventListener("click", () => {
+          song.progress = 0;
+          progressBar.value = 0;
+          progressText.textContent = "0%";
+          restartBtn.disabled = true;
+          startBtn.style.display = "inline-block";
+          resumeBtn.style.display = "none";
+          alert(`${song.name} restarted!`);
+          saveSongs();
+        });
+      });
+    }
+
+    // Form submission
+    songForm.addEventListener("submit", function(e){
+      e.preventDefault();
+      const name = document.getElementById("songName").value;
+      const part = document.getElementById("part").value;
+
+      songs.push({name, part, progress: 0});
+      saveSongs();
+      renderSongs();
+      songForm.reset();
+    });
+
+    // Initial render
+    renderSongs();
+  </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Dashboard with Files</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], input[type="text"], select {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+    a {
+      display: block;
+      margin-bottom: 5px;
+      color: #0078d7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Choir Vocal Coach</h1>
+
+<!-- SONG INPUTS -->
+<div class="song-input">
+  <h2>Add a New Song</h2>
+  <form id="songForm">
+    <label for="songName">Song Name:</label>
+    <input type="text" id="songName" required>
+
+    <label for="performance">Performance Recording:</label>
+    <input type="file" id="performance" accept="audio/*">
+
+    <label for="track">Instrumental Track:</label>
+    <input type="file" id="track" accept="audio/*">
+
+    <label for="sheet">PDF Sheet Music:</label>
+    <input type="file" id="sheet" accept=".pdf">
+
+    <label for="part">Select Choir Part:</label>
+    <select id="part" required>
+      <option value="">--Choose your part--</option>
+      <option value="soprano">Soprano</option>
+      <option value="alto">Alto</option>
+      <option value="tenor">Tenor</option>
+      <option value="bass">Bass</option>
+    </select>
+
+    <button type="submit">Add Song</button>
+  </form>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <h2>My Dashboard</h2>
+  <div id="songList">
+    <p><em>No songs added yet.</em></p>
+  </div>
+</div>
+
+<script>
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+
+// Load songs from localStorage (without files)
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() {
+  localStorage.setItem("songs", JSON.stringify(songs));
+}
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if (songs.length === 0) {
+    songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+    return;
+  }
+
+  songs.forEach((song, index) => {
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = index;
+
+    let performanceLink = song.performance ? `<a href="${song.performance}" target="_blank">Performance Audio</a>` : "";
+    let trackLink = song.track ? `<a href="${song.track}" target="_blank">Instrumental Track</a>` : "";
+    let sheetLink = song.sheet ? `<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>` : "";
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Progress: <span class="progress-text">${song.progress}%</span></p>
+      <progress value="${song.progress}" max="100"></progress><br>
+      ${performanceLink}
+      ${trackLink}
+      ${sheetLink}<br>
+      <button class="start-btn"${song.progress>0?" style='display:none;'":""}>Start</button>
+      <button class="resume-btn"${song.progress>0?"":" style='display:none;'"}>Resume</button>
+      <button class="restart-btn"${song.progress===100?"":" disabled"}>Restart</button>
+    `;
+
+    songList.appendChild(songDiv);
+
+    // Buttons
+    const startBtn = songDiv.querySelector(".start-btn");
+    const resumeBtn = songDiv.querySelector(".resume-btn");
+    const restartBtn = songDiv.querySelector(".restart-btn");
+    const progressBar = songDiv.querySelector("progress");
+    const progressText = songDiv.querySelector(".progress-text");
+
+    startBtn?.addEventListener("click", () => {
+      startBtn.style.display = "none";
+      resumeBtn.style.display = "inline-block";
+      alert(`Started learning ${song.name}`);
+    });
+
+    resumeBtn?.addEventListener("click", () => {
+      let newProgress = Math.min(song.progress + 10, 100);
+      song.progress = newProgress;
+      progressBar.value = newProgress;
+      progressText.textContent = newProgress + "%";
+
+      if(newProgress === 100){
+        restartBtn.disabled = false;
+        alert(`${song.name} completed!`);
+      }
+
+      saveSongs();
+    });
+
+    restartBtn?.addEventListener("click", () => {
+      song.progress = 0;
+      progressBar.value = 0;
+      progressText.textContent = "0%";
+      restartBtn.disabled = true;
+      startBtn.style.display = "inline-block";
+      resumeBtn.style.display = "none";
+      alert(`${song.name} restarted!`);
+      saveSongs();
+    });
+  });
+}
+
+// Form submission
+songForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+
+  // Files: create temporary URLs
+  const performanceFile = document.getElementById("performance").files[0];
+  const trackFile = document.getElementById("track").files[0];
+  const sheetFile = document.getElementById("sheet").files[0];
+
+  const performanceURL = performanceFile ? URL.createObjectURL(performanceFile) : null;
+  const trackURL = trackFile ? URL.createObjectURL(trackFile) : null;
+  const sheetURL = sheetFile ? URL.createObjectURL(sheetFile) : null;
+
+  songs.push({
+    name, 
+    part, 
+    progress: 0,
+    performance: performanceURL,
+    track: trackURL,
+    sheet: sheetURL
+  });
+
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Dashboard with Files</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], input[type="text"], select {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+    a {
+      display: block;
+      margin-bottom: 5px;
+      color: #0078d7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Choir Vocal Coach</h1>
+
+<!-- SONG INPUTS -->
+<div class="song-input">
+  <h2>Add a New Song</h2>
+  <form id="songForm">
+    <label for="songName">Song Name:</label>
+    <input type="text" id="songName" required>
+
+    <label for="performance">Performance Recording:</label>
+    <input type="file" id="performance" accept="audio/*">
+
+    <label for="track">Instrumental Track:</label>
+    <input type="file" id="track" accept="audio/*">
+
+    <label for="sheet">PDF Sheet Music:</label>
+    <input type="file" id="sheet" accept=".pdf">
+
+    <label for="part">Select Choir Part:</label>
+    <select id="part" required>
+      <option value="">--Choose your part--</option>
+      <option value="soprano">Soprano</option>
+      <option value="alto">Alto</option>
+      <option value="tenor">Tenor</option>
+      <option value="bass">Bass</option>
+    </select>
+
+    <button type="submit">Add Song</button>
+  </form>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <h2>My Dashboard</h2>
+  <div id="songList">
+    <p><em>No songs added yet.</em></p>
+  </div>
+</div>
+
+<script>
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+
+// Load songs from localStorage (without files)
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() {
+  localStorage.setItem("songs", JSON.stringify(songs));
+}
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if (songs.length === 0) {
+    songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+    return;
+  }
+
+  songs.forEach((song, index) => {
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = index;
+
+    let performanceLink = song.performance ? `<a href="${song.performance}" target="_blank">Performance Audio</a>` : "";
+    let trackLink = song.track ? `<a href="${song.track}" target="_blank">Instrumental Track</a>` : "";
+    let sheetLink = song.sheet ? `<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>` : "";
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Progress: <span class="progress-text">${song.progress}%</span></p>
+      <progress value="${song.progress}" max="100"></progress><br>
+      ${performanceLink}
+      ${trackLink}
+      ${sheetLink}<br>
+      <button class="start-btn"${song.progress>0?" style='display:none;'":""}>Start</button>
+      <button class="resume-btn"${song.progress>0?"":" style='display:none;'"}>Resume</button>
+      <button class="restart-btn"${song.progress===100?"":" disabled"}>Restart</button>
+    `;
+
+    songList.appendChild(songDiv);
+
+    // Buttons
+    const startBtn = songDiv.querySelector(".start-btn");
+    const resumeBtn = songDiv.querySelector(".resume-btn");
+    const restartBtn = songDiv.querySelector(".restart-btn");
+    const progressBar = songDiv.querySelector("progress");
+    const progressText = songDiv.querySelector(".progress-text");
+
+    startBtn?.addEventListener("click", () => {
+      startBtn.style.display = "none";
+      resumeBtn.style.display = "inline-block";
+      alert(`Started learning ${song.name}`);
+    });
+
+    resumeBtn?.addEventListener("click", () => {
+      let newProgress = Math.min(song.progress + 10, 100);
+      song.progress = newProgress;
+      progressBar.value = newProgress;
+      progressText.textContent = newProgress + "%";
+
+      if(newProgress === 100){
+        restartBtn.disabled = false;
+        alert(`${song.name} completed!`);
+      }
+
+      saveSongs();
+    });
+
+    restartBtn?.addEventListener("click", () => {
+      song.progress = 0;
+      progressBar.value = 0;
+      progressText.textContent = "0%";
+      restartBtn.disabled = true;
+      startBtn.style.display = "inline-block";
+      resumeBtn.style.display = "none";
+      alert(`${song.name} restarted!`);
+      saveSongs();
+    });
+  });
+}
+
+// Form submission
+songForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+
+  // Files: create temporary URLs
+  const performanceFile = document.getElementById("performance").files[0];
+  const trackFile = document.getElementById("track").files[0];
+  const sheetFile = document.getElementById("sheet").files[0];
+
+  const performanceURL = performanceFile ? URL.createObjectURL(performanceFile) : null;
+  const trackURL = trackFile ? URL.createObjectURL(trackFile) : null;
+  const sheetURL = sheetFile ? URL.createObjectURL(sheetFile) : null;
+
+  songs.push({
+    name, 
+    part, 
+    progress: 0,
+    performance: performanceURL,
+    track: trackURL,
+    sheet: sheetURL
+  });
+
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Dashboard with Files</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], input[type="text"], select {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+    a {
+      display: block;
+      margin-bottom: 5px;
+      color: #0078d7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Choir Vocal Coach</h1>
+
+<!-- SONG INPUTS -->
+<div class="song-input">
+  <h2>Add a New Song</h2>
+  <form id="songForm">
+    <label for="songName">Song Name:</label>
+    <input type="text" id="songName" required>
+
+    <label for="performance">Performance Recording:</label>
+    <input type="file" id="performance" accept="audio/*">
+
+    <label for="track">Instrumental Track:</label>
+    <input type="file" id="track" accept="audio/*">
+
+    <label for="sheet">PDF Sheet Music:</label>
+    <input type="file" id="sheet" accept=".pdf">
+
+    <label for="part">Select Choir Part:</label>
+    <select id="part" required>
+      <option value="">--Choose your part--</option>
+      <option value="soprano">Soprano</option>
+      <option value="alto">Alto</option>
+      <option value="tenor">Tenor</option>
+      <option value="bass">Bass</option>
+    </select>
+
+    <button type="submit">Add Song</button>
+  </form>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <h2>My Dashboard</h2>
+  <div id="songList">
+    <p><em>No songs added yet.</em></p>
+  </div>
+</div>
+
+<script>
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+
+// Load songs from localStorage (without files)
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() {
+  localStorage.setItem("songs", JSON.stringify(songs));
+}
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if (songs.length === 0) {
+    songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+    return;
+  }
+
+  songs.forEach((song, index) => {
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = index;
+
+    let performanceLink = song.performance ? `<a href="${song.performance}" target="_blank">Performance Audio</a>` : "";
+    let trackLink = song.track ? `<a href="${song.track}" target="_blank">Instrumental Track</a>` : "";
+    let sheetLink = song.sheet ? `<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>` : "";
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Progress: <span class="progress-text">${song.progress}%</span></p>
+      <progress value="${song.progress}" max="100"></progress><br>
+      ${performanceLink}
+      ${trackLink}
+      ${sheetLink}<br>
+      <button class="start-btn"${song.progress>0?" style='display:none;'":""}>Start</button>
+      <button class="resume-btn"${song.progress>0?"":" style='display:none;'"}>Resume</button>
+      <button class="restart-btn"${song.progress===100?"":" disabled"}>Restart</button>
+    `;
+
+    songList.appendChild(songDiv);
+
+    // Buttons
+    const startBtn = songDiv.querySelector(".start-btn");
+    const resumeBtn = songDiv.querySelector(".resume-btn");
+    const restartBtn = songDiv.querySelector(".restart-btn");
+    const progressBar = songDiv.querySelector("progress");
+    const progressText = songDiv.querySelector(".progress-text");
+
+    startBtn?.addEventListener("click", () => {
+      startBtn.style.display = "none";
+      resumeBtn.style.display = "inline-block";
+      alert(`Started learning ${song.name}`);
+    });
+
+    resumeBtn?.addEventListener("click", () => {
+      let newProgress = Math.min(song.progress + 10, 100);
+      song.progress = newProgress;
+      progressBar.value = newProgress;
+      progressText.textContent = newProgress + "%";
+
+      if(newProgress === 100){
+        restartBtn.disabled = false;
+        alert(`${song.name} completed!`);
+      }
+
+      saveSongs();
+    });
+
+    restartBtn?.addEventListener("click", () => {
+      song.progress = 0;
+      progressBar.value = 0;
+      progressText.textContent = "0%";
+      restartBtn.disabled = true;
+      startBtn.style.display = "inline-block";
+      resumeBtn.style.display = "none";
+      alert(`${song.name} restarted!`);
+      saveSongs();
+    });
+  });
+}
+
+// Form submission
+songForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+
+  // Files: create temporary URLs
+  const performanceFile = document.getElementById("performance").files[0];
+  const trackFile = document.getElementById("track").files[0];
+  const sheetFile = document.getElementById("sheet").files[0];
+
+  const performanceURL = performanceFile ? URL.createObjectURL(performanceFile) : null;
+  const trackURL = trackFile ? URL.createObjectURL(trackFile) : null;
+  const sheetURL = sheetFile ? URL.createObjectURL(sheetFile) : null;
+
+  songs.push({
+    name, 
+    part, 
+    progress: 0,
+    performance: performanceURL,
+    track: trackURL,
+    sheet: sheetURL
+  });
+
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Dashboard with Files</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], input[type="text"], select {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+    a {
+      display: block;
+      margin-bottom: 5px;
+      color: #0078d7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Choir Vocal Coach</h1>
+
+<!-- SONG INPUTS -->
+<div class="song-input">
+  <h2>Add a New Song</h2>
+  <form id="songForm">
+    <label for="songName">Song Name:</label>
+    <input type="text" id="songName" required>
+
+    <label for="performance">Performance Recording:</label>
+    <input type="file" id="performance" accept="audio/*">
+
+    <label for="track">Instrumental Track:</label>
+    <input type="file" id="track" accept="audio/*">
+
+    <label for="sheet">PDF Sheet Music:</label>
+    <input type="file" id="sheet" accept=".pdf">
+
+    <label for="part">Select Choir Part:</label>
+    <select id="part" required>
+      <option value="">--Choose your part--</option>
+      <option value="soprano">Soprano</option>
+      <option value="alto">Alto</option>
+      <option value="tenor">Tenor</option>
+      <option value="bass">Bass</option>
+    </select>
+
+    <button type="submit">Add Song</button>
+  </form>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <h2>My Dashboard</h2>
+  <div id="songList">
+    <p><em>No songs added yet.</em></p>
+  </div>
+</div>
+
+<script>
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+
+// Load songs from localStorage (without files)
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() {
+  localStorage.setItem("songs", JSON.stringify(songs));
+}
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if (songs.length === 0) {
+    songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+    return;
+  }
+
+  songs.forEach((song, index) => {
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = index;
+
+    let performanceLink = song.performance ? `<a href="${song.performance}" target="_blank">Performance Audio</a>` : "";
+    let trackLink = song.track ? `<a href="${song.track}" target="_blank">Instrumental Track</a>` : "";
+    let sheetLink = song.sheet ? `<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>` : "";
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Progress: <span class="progress-text">${song.progress}%</span></p>
+      <progress value="${song.progress}" max="100"></progress><br>
+      ${performanceLink}
+      ${trackLink}
+      ${sheetLink}<br>
+      <button class="start-btn"${song.progress>0?" style='display:none;'":""}>Start</button>
+      <button class="resume-btn"${song.progress>0?"":" style='display:none;'"}>Resume</button>
+      <button class="restart-btn"${song.progress===100?"":" disabled"}>Restart</button>
+    `;
+
+    songList.appendChild(songDiv);
+
+    // Buttons
+    const startBtn = songDiv.querySelector(".start-btn");
+    const resumeBtn = songDiv.querySelector(".resume-btn");
+    const restartBtn = songDiv.querySelector(".restart-btn");
+    const progressBar = songDiv.querySelector("progress");
+    const progressText = songDiv.querySelector(".progress-text");
+
+    startBtn?.addEventListener("click", () => {
+      startBtn.style.display = "none";
+      resumeBtn.style.display = "inline-block";
+      alert(`Started learning ${song.name}`);
+    });
+
+    resumeBtn?.addEventListener("click", () => {
+      let newProgress = Math.min(song.progress + 10, 100);
+      song.progress = newProgress;
+      progressBar.value = newProgress;
+      progressText.textContent = newProgress + "%";
+
+      if(newProgress === 100){
+        restartBtn.disabled = false;
+        alert(`${song.name} completed!`);
+      }
+
+      saveSongs();
+    });
+
+    restartBtn?.addEventListener("click", () => {
+      song.progress = 0;
+      progressBar.value = 0;
+      progressText.textContent = "0%";
+      restartBtn.disabled = true;
+      startBtn.style.display = "inline-block";
+      resumeBtn.style.display = "none";
+      alert(`${song.name} restarted!`);
+      saveSongs();
+    });
+  });
+}
+
+// Form submission
+songForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+
+  // Files: create temporary URLs
+  const performanceFile = document.getElementById("performance").files[0];
+  const trackFile = document.getElementById("track").files[0];
+  const sheetFile = document.getElementById("sheet").files[0];
+
+  const performanceURL = performanceFile ? URL.createObjectURL(performanceFile) : null;
+  const trackURL = trackFile ? URL.createObjectURL(trackFile) : null;
+  const sheetURL = sheetFile ? URL.createObjectURL(sheetFile) : null;
+
+  songs.push({
+    name, 
+    part, 
+    progress: 0,
+    performance: performanceURL,
+    track: trackURL,
+    sheet: sheetURL
+  });
+
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Persistent Files</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], input[type="text"], select {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+    a {
+      display: block;
+      margin-bottom: 5px;
+      color: #0078d7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Choir Vocal Coach</h1>
+
+<div class="song-input">
+  <h2>Add a New Song</h2>
+  <form id="songForm">
+    <label for="songName">Song Name:</label>
+    <input type="text" id="songName" required>
+
+    <label for="performance">Performance Recording:</label>
+    <input type="file" id="performance" accept="audio/*">
+
+    <label for="track">Instrumental Track:</label>
+    <input type="file" id="track" accept="audio/*">
+
+    <label for="sheet">PDF Sheet Music:</label>
+    <input type="file" id="sheet" accept=".pdf">
+
+    <label for="part">Select Choir Part:</label>
+    <select id="part" required>
+      <option value="">--Choose your part--</option>
+      <option value="soprano">Soprano</option>
+      <option value="alto">Alto</option>
+      <option value="tenor">Tenor</option>
+      <option value="bass">Bass</option>
+    </select>
+
+    <button type="submit">Add Song</button>
+  </form>
+</div>
+
+<div class="dashboard">
+  <h2>My Dashboard</h2>
+  <div id="songList">
+    <p><em>No songs added yet.</em></p>
+  </div>
+</div>
+
+<script>
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+
+// Load songs from localStorage
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() {
+  localStorage.setItem("songs", JSON.stringify(songs));
+}
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if (songs.length === 0) {
+    songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+    return;
+  }
+
+  songs.forEach((song, index) => {
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = index;
+
+    // Links for files
+    let performanceLink = song.performance ? `<audio controls src="${song.performance}"></audio>` : "";
+    let trackLink = song.track ? `<audio controls src="${song.track}"></audio>` : "";
+    let sheetLink = song.sheet ? `<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>` : "";
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Progress: <span class="progress-text">${song.progress}%</span></p>
+      <progress value="${song.progress}" max="100"></progress><br>
+      ${performanceLink}
+      ${trackLink}
+      ${sheetLink}<br>
+      <button class="start-btn"${song.progress>0?" style='display:none;'":""}>Start</button>
+      <button class="resume-btn"${song.progress>0?"":" style='display:none;'"}>Resume</button>
+      <button class="restart-btn"${song.progress===100?"":" disabled"}>Restart</button>
+    `;
+
+    songList.appendChild(songDiv);
+
+    // Buttons
+    const startBtn = songDiv.querySelector(".start-btn");
+    const resumeBtn = songDiv.querySelector(".resume-btn");
+    const restartBtn = songDiv.querySelector(".restart-btn");
+    const progressBar = songDiv.querySelector("progress");
+    const progressText = songDiv.querySelector(".progress-text");
+
+    startBtn?.addEventListener("click", () => {
+      startBtn.style.display = "none";
+      resumeBtn.style.display = "inline-block";
+      alert(`Started learning ${song.name}`);
+    });
+
+    resumeBtn?.addEventListener("click", () => {
+      let newProgress = Math.min(song.progress + 10, 100);
+      song.progress = newProgress;
+      progressBar.value = newProgress;
+      progressText.textContent = newProgress + "%";
+
+      if(newProgress === 100){
+        restartBtn.disabled = false;
+        alert(`${song.name} completed!`);
+      }
+
+      saveSongs();
+    });
+
+    restartBtn?.addEventListener("click", () => {
+      song.progress = 0;
+      progressBar.value = 0;
+      progressText.textContent = "0%";
+      restartBtn.disabled = true;
+      startBtn.style.display = "inline-block";
+      resumeBtn.style.display = "none";
+      alert(`${song.name} restarted!`);
+      saveSongs();
+    });
+  });
+}
+
+// Convert file to Base64 string for localStorage
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    if(!file) resolve(null);
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
+songForm.addEventListener("submit", async function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+
+  // Convert files to Base64
+  const performanceFile = document.getElementById("performance").files[0];
+  const trackFile = document.getElementById("track").files[0];
+  const sheetFile = document.getElementById("sheet").files[0];
+
+  const performanceBase64 = await fileToBase64(performanceFile);
+  const trackBase64 = await fileToBase64(trackFile);
+  const sheetBase64 = await fileToBase64(sheetFile);
+
+  songs.push({
+    name,
+    part,
+    progress: 0,
+    performance: performanceBase64,
+    track: trackBase64,
+    sheet: sheetBase64
+  });
+
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Modules</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    .module {
+      margin-left: 15px;
+      padding: 5px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], input[type="text"], select, input[type="number"] {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+      margin-bottom:5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+    a {
+      display: block;
+      margin-bottom: 5px;
+      color: #0078d7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Choir Vocal Coach</h1>
+
+<div class="song-input">
+  <h2>Add a New Song</h2>
+  <form id="songForm">
+    <label for="songName">Song Name:</label>
+    <input type="text" id="songName" required>
+
+    <label for="part">Select Choir Part:</label>
+    <select id="part" required>
+      <option value="">--Choose your part--</option>
+      <option value="soprano">Soprano</option>
+      <option value="alto">Alto</option>
+      <option value="tenor">Tenor</option>
+      <option value="bass">Bass</option>
+    </select>
+
+    <label for="modulesCount">Number of Modules:</label>
+    <input type="number" id="modulesCount" min="1" max="10" value="4">
+
+    <button type="submit">Add Song</button>
+  </form>
+</div>
+
+<div class="dashboard">
+  <h2>My Dashboard</h2>
+  <div id="songList">
+    <p><em>No songs added yet.</em></p>
+  </div>
+</div>
+
+<script>
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+
+// Load songs from localStorage
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() {
+  localStorage.setItem("songs", JSON.stringify(songs));
+}
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if (songs.length === 0) {
+    songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+    return;
+  }
+
+  songs.forEach((song, songIndex) => {
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = songIndex;
+
+    // Calculate overall progress (average of modules)
+    let overallProgress = 0;
+    if(song.modules.length > 0) {
+      overallProgress = Math.floor(song.modules.reduce((a,b)=>a+b.progress,0)/song.modules.length);
+    }
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Overall Progress: <span class="progress-text">${overallProgress}%</span></p>
+      <progress value="${overallProgress}" max="100"></progress>
+      <div class="modules"></div>
+    `;
+
+    const modulesContainer = songDiv.querySelector(".modules");
+    song.modules.forEach((mod, modIndex) => {
+      const modDiv = document.createElement("div");
+      modDiv.className = "module";
+      modDiv.innerHTML = `
+        <strong>Module ${modIndex + 1}</strong> - Progress: <span class="mod-progress-text">${mod.progress}%</span>
+        <progress value="${mod.progress}" max="100"></progress><br>
+        <button class="mod-resume-btn"${mod.progress>=100?" disabled":""}>Resume</button>
+      `;
+      modulesContainer.appendChild(modDiv);
+
+      const resumeBtn = modDiv.querySelector(".mod-resume-btn");
+      const progressBar = modDiv.querySelector("progress");
+      const progressText = modDiv.querySelector(".mod-progress-text");
+
+      resumeBtn.addEventListener("click", () => {
+        let newProgress = Math.min(mod.progress + 10, 100);
+        mod.progress = newProgress;
+        progressBar.value = newProgress;
+        progressText.textContent = newProgress + "%";
+        if(newProgress === 100) resumeBtn.disabled = false;
+        saveSongs();
+        renderSongs();
+      });
+    });
+
+    songList.appendChild(songDiv);
+  });
+}
+
+songForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+  const modulesCount = parseInt(document.getElementById("modulesCount").value);
+
+  // Create song with modules
+  const modules = [];
+  for(let i=0;i<modulesCount;i++){
+    modules.push({progress:0});
+  }
+
+  songs.push({name, part, modules});
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Modules & Files</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f9;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .dashboard, .song-input {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 30px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+    .song {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    .module {
+      margin-left: 15px;
+      padding: 5px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="file"], input[type="text"], select, input[type="number"] {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      background: #0078d7;
+      color: white;
+      cursor: pointer;
+      margin-right: 5px;
+      margin-bottom:5px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    progress {
+      width: 100%;
+      height: 20px;
+      margin-bottom: 10px;
+    }
+    a {
+      display: block;
+      margin-bottom: 5px;
+      color: #0078d7;
+      text-decoration: none;
+    }
+    audio {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Choir Vocal Coach</h1>
+
+<div class="song-input">
+  <h2>Add a New Song</h2>
+  <form id="songForm">
+    <label for="songName">Song Name:</label>
+    <input type="text" id="songName" required>
+
+    <label for="part">Select Choir Part:</label>
+    <select id="part" required>
+      <option value="">--Choose your part--</option>
+      <option value="soprano">Soprano</option>
+      <option value="alto">Alto</option>
+      <option value="tenor">Tenor</option>
+      <option value="bass">Bass</option>
+    </select>
+
+    <label for="modulesCount">Number of Modules:</label>
+    <input type="number" id="modulesCount" min="1" max="10" value="4">
+
+    <label for="performance">Performance Recording:</label>
+    <input type="file" id="performance" accept="audio/*">
+
+    <label for="track">Instrumental Track:</label>
+    <input type="file" id="track" accept="audio/*">
+
+    <label for="sheet">PDF Sheet Music:</label>
+    <input type="file" id="sheet" accept=".pdf">
+
+    <button type="submit">Add Song</button>
+  </form>
+</div>
+
+<div class="dashboard">
+  <h2>My Dashboard</h2>
+  <div id="songList">
+    <p><em>No songs added yet.</em></p>
+  </div>
+</div>
+
+<script>
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+
+// Load songs from localStorage
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() {
+  localStorage.setItem("songs", JSON.stringify(songs));
+}
+
+// Convert file to Base64
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    if(!file) resolve(null);
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if (songs.length === 0) {
+    songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+    return;
+  }
+
+  songs.forEach((song, songIndex) => {
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = songIndex;
+
+    // Overall progress
+    let overallProgress = 0;
+    if(song.modules.length > 0) {
+      overallProgress = Math.floor(song.modules.reduce((a,b)=>a+b.progress,0)/song.modules.length);
+    }
+
+    // Files
+    let performance = song.performance ? `<audio controls src="${song.performance}"></audio>` : "";
+    let track = song.track ? `<audio controls src="${song.track}"></audio>` : "";
+    let sheet = song.sheet ? `<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>` : "";
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Overall Progress: <span class="progress-text">${overallProgress}%</span></p>
+      <progress value="${overallProgress}" max="100"></progress>
+      ${performance}
+      ${track}
+      ${sheet}
+      <div class="modules"></div>
+    `;
+
+    const modulesContainer = songDiv.querySelector(".modules");
+    song.modules.forEach((mod, modIndex) => {
+      const modDiv = document.createElement("div");
+      modDiv.className = "module";
+      modDiv.innerHTML = `
+        <strong>Module ${modIndex + 1}</strong> - Progress: <span class="mod-progress-text">${mod.progress}%</span>
+        <progress value="${mod.progress}" max="100"></progress><br>
+        <button class="mod-resume-btn"${mod.progress>=100?" disabled":""}>Resume</button>
+      `;
+      modulesContainer.appendChild(modDiv);
+
+      const resumeBtn = modDiv.querySelector(".mod-resume-btn");
+      const progressBar = modDiv.querySelector("progress");
+      const progressText = modDiv.querySelector(".mod-progress-text");
+
+      resumeBtn.addEventListener("click", () => {
+        let newProgress = Math.min(mod.progress + 10, 100);
+        mod.progress = newProgress;
+        progressBar.value = newProgress;
+        progressText.textContent = newProgress + "%";
+        saveSongs();
+        renderSongs();
+      });
+    });
+
+    songList.appendChild(songDiv);
+  });
+}
+
+songForm.addEventListener("submit", async function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+  const modulesCount = parseInt(document.getElementById("modulesCount").value);
+
+  // Convert files to Base64
+  const performanceFile = document.getElementById("performance").files[0];
+  const trackFile = document.getElementById("track").files[0];
+  const sheetFile = document.getElementById("sheet").files[0];
+
+  const performanceBase64 = await fileToBase64(performanceFile);
+  const trackBase64 = await fileToBase64(trackFile);
+  const sheetBase64 = await fileToBase64(sheetFile);
+
+  // Create modules
+  const modules = [];
+  for(let i=0;i<modulesCount;i++){
+    modules.push({progress:0});
+  }
+
+  songs.push({
+    name, part, modules,
+    performance: performanceBase64,
+    track: trackBase64,
+    sheet: sheetBase64
+  });
+
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Modules with Deadlines & Tips</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+    h1, h2 { color: #333; }
+    .dashboard, .song-input { background: white; padding: 20px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 30px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+    .song { padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+    .module { margin-left: 15px; padding: 5px 0; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    input[type="file"], input[type="text"], select, input[type="number"], input[type="date"] { width: 100%; margin-bottom: 15px; }
+    button { padding: 6px 12px; border: none; border-radius: 5px; background: #0078d7; color: white; cursor: pointer; margin-right: 5px; margin-bottom:5px; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    progress { width: 100%; height: 20px; margin-bottom: 10px; }
+    a { display: block; margin-bottom: 5px; color: #0078d7; text-decoration: none; }
+    audio { display: block; margin-bottom: 5px; }
+    .tip { font-style: italic; color: #555; margin-bottom: 5px; }
+    .deadline { color: #d9534f; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h1>Choir Vocal Coach</h1>
+
+<div class="song-input">
+  <h2>Add a New Song</h2>
+  <form id="songForm">
+    <label for="songName">Song Name:</label>
+    <input type="text" id="songName" required>
+
+    <label for="part">Select Choir Part:</label>
+    <select id="part" required>
+      <option value="">--Choose your part--</option>
+      <option value="soprano">Soprano</option>
+      <option value="alto">Alto</option>
+      <option value="tenor">Tenor</option>
+      <option value="bass">Bass</option>
+    </select>
+
+    <label for="modulesCount">Number of Modules:</label>
+    <input type="number" id="modulesCount" min="1" max="10" value="4">
+
+    <label for="performance">Performance Recording:</label>
+    <input type="file" id="performance" accept="audio/*">
+
+    <label for="track">Instrumental Track:</label>
+    <input type="file" id="track" accept="audio/*">
+
+    <label for="sheet">PDF Sheet Music:</label>
+    <input type="file" id="sheet" accept=".pdf">
+
+    <button type="submit">Add Song</button>
+  </form>
+</div>
+
+<div class="dashboard">
+  <h2>My Dashboard</h2>
+  <div id="songList">
+    <p><em>No songs added yet.</em></p>
+  </div>
+</div>
+
+<script>
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+
+// Load songs from localStorage
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() {
+  localStorage.setItem("songs", JSON.stringify(songs));
+}
+
+// Convert file to Base64
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    if(!file) resolve(null);
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
+// Example coaching tips (can expand later)
+const tips = [
+  "Warm up your voice before practicing this module.",
+  "Focus on breathing and posture.",
+  "Pay attention to tricky notes or rhythms.",
+  "Record yourself and compare to the track.",
+  "Practice slowly, then gradually increase speed."
+];
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if (songs.length === 0) {
+    songList.innerHTML = "<p><em>No songs added yet.</em></p>";
+    return;
+  }
+
+  const now = new Date();
+
+  songs.forEach((song, songIndex) => {
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = songIndex;
+
+    // Overall progress
+    let overallProgress = 0;
+    if(song.modules.length > 0) {
+      overallProgress = Math.floor(song.modules.reduce((a,b)=>a+b.progress,0)/song.modules.length);
+    }
+
+    // Files
+    let performance = song.performance ? `<audio controls src="${song.performance}"></audio>` : "";
+    let track = song.track ? `<audio controls src="${song.track}"></audio>` : "";
+    let sheet = song.sheet ? `<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>` : "";
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Overall Progress: <span class="progress-text">${overallProgress}%</span></p>
+      <progress value="${overallProgress}" max="100"></progress>
+      ${performance}
+      ${track}
+      ${sheet}
+      <div class="modules"></div>
+    `;
+
+    const modulesContainer = songDiv.querySelector(".modules");
+    song.modules.forEach((mod, modIndex) => {
+      const moduleDate = mod.deadline ? new Date(mod.deadline) : null;
+      const isLate = moduleDate && now > moduleDate && mod.progress < 100;
+
+      const modDiv = document.createElement("div");
+      modDiv.className = "module";
+      modDiv.innerHTML = `
+        <strong>Module ${modIndex + 1}</strong> - Progress: <span class="mod-progress-text">${mod.progress}%</span>
+        <progress value="${mod.progress}" max="100"></progress><br>
+        <button class="mod-resume-btn"${mod.progress>=100?" disabled":""}>Resume</button>
+        ${mod.deadline ? `<span class="deadline">${isLate ? '⚠ Deadline passed!' : 'Deadline: '+mod.deadline}</span>` : ''}
+        <div class="tip"></div>
+      `;
+      modulesContainer.appendChild(modDiv);
+
+      const resumeBtn = modDiv.querySelector(".mod-resume-btn");
+      const progressBar = modDiv.querySelector("progress");
+      const progressText = modDiv.querySelector(".mod-progress-text");
+      const tipDiv = modDiv.querySelector(".tip");
+
+      resumeBtn.addEventListener("click", () => {
+        let newProgress = Math.min(mod.progress + 10, 100);
+        mod.progress = newProgress;
+        progressBar.value = newProgress;
+        progressText.textContent = newProgress + "%";
+
+        // Give a random tip
+        tipDiv.textContent = tips[Math.floor(Math.random() * tips.length)];
+
+        saveSongs();
+        renderSongs();
+      });
+    });
+
+    songList.appendChild(songDiv);
+  });
+}
+
+// Prompt user to add deadlines for each module when adding song
+songForm.addEventListener("submit", async function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+  const modulesCount = parseInt(document.getElementById("modulesCount").value);
+
+  const performanceFile = document.getElementById("performance").files[0];
+  const trackFile = document.getElementById("track").files[0];
+  const sheetFile = document.getElementById("sheet").files[0];
+
+  const performanceBase64 = await fileToBase64(performanceFile);
+  const trackBase64 = await fileToBase64(trackFile);
+  const sheetBase64 = await fileToBase64(sheetFile);
+
+  // Ask for deadlines
+  const modules = [];
+  for(let i=0;i<modulesCount;i++){
+    let deadline = prompt(`Enter deadline for Module ${i+1} (YYYY-MM-DD) or leave empty:`);
+    modules.push({progress:0, deadline: deadline || null});
+  }
+
+  songs.push({
+    name, part, modules,
+    performance: performanceBase64,
+    track: trackBase64,
+    sheet: sheetBase64
+  });
+
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Vocal Coach - Sign Up & Modules</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+    h1, h2 { color: #333; }
+    .container { max-width: 700px; margin: auto; }
+    .section { background: white; padding: 20px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 30px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+    .song { padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+    .module { margin-left: 15px; padding: 5px 0; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    input, select, button { width: 100%; margin-bottom: 15px; padding: 6px; }
+    button { background: #0078d7; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    progress { width: 100%; height: 20px; margin-bottom: 10px; }
+    audio { display: block; margin-bottom: 5px; }
+    a { display: block; margin-bottom: 5px; color: #0078d7; text-decoration: none; }
+    .tip { font-style: italic; color: #555; margin-bottom: 5px; }
+    .deadline { color: #d9534f; font-weight: bold; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+<h1>Choir Vocal Coach</h1>
+
+<!-- Sign Up Section -->
+<div class="section signup" id="signupSection">
+  <h2>Sign Up</h2>
+  <form id="signupForm">
+    <label for="email">Email Address:</label>
+    <input type="text" id="email" placeholder="example@gmail.com" required>
+    <label for="phone">Phone Number:</label>
+    <input type="text" id="phone" placeholder="1234567890" required>
+    <button type="submit">Sign Up</button>
+  </form>
+</div>
+
+<!-- Dashboard & Song Input -->
+<div id="mainApp" style="display:none;">
+  <div class="section song-input">
+    <h2>Add a New Song</h2>
+    <form id="songForm">
+      <label for="songName">Song Name:</label>
+      <input type="text" id="songName" required>
+
+      <label for="part">Select Choir Part:</label>
+      <select id="part" required>
+        <option value="">--Choose your part--</option>
+        <option value="soprano">Soprano</option>
+        <option value="alto">Alto</option>
+        <option value="tenor">Tenor</option>
+        <option value="bass">Bass</option>
+      </select>
+
+      <label for="modulesCount">Number of Modules:</label>
+      <input type="number" id="modulesCount" min="1" max="10" value="4">
+
+      <label for="performance">Performance Recording:</label>
+      <input type="file" id="performance" accept="audio/*">
+
+      <label for="track">Instrumental Track:</label>
+      <input type="file" id="track" accept="audio/*">
+
+      <label for="sheet">PDF Sheet Music:</label>
+      <input type="file" id="sheet" accept=".pdf">
+
+      <button type="submit">Add Song</button>
+    </form>
+  </div>
+
+  <div class="section dashboard">
+    <h2>My Dashboard</h2>
+    <div id="songList"><p><em>No songs added yet.</em></p></div>
+  </div>
+</div>
+
+<script>
+const signupForm = document.getElementById("signupForm");
+const signupSection = document.getElementById("signupSection");
+const mainApp = document.getElementById("mainApp");
+
+// Check if already signed up
+let user = JSON.parse(localStorage.getItem("user") || "null");
+if(user) {
+  signupSection.style.display = "none";
+  mainApp.style.display = "block";
+}
+
+// Sign Up Form
+signupForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+
+  if(!email.includes("@")) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+  if(!/^\d+$/.test(phone)) {
+    alert("Phone number must contain only digits.");
+    return;
+  }
+
+  user = {email, phone};
+  localStorage.setItem("user", JSON.stringify(user));
+  alert("Sign Up Successful!");
+  signupSection.style.display = "none";
+  mainApp.style.display = "block";
+});
+
+// ---------- Choir App Logic ----------
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs() { localStorage.setItem("songs", JSON.stringify(songs)); }
+function fileToBase64(file) {
+  return new Promise((resolve,reject)=>{
+    if(!file) resolve(null);
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(reader.result);
+    reader.onerror = e=>reject(e);
+    reader.readAsDataURL(file);
+  });
+}
+
+const tips = [
+  "Warm up your voice before practicing this module.",
+  "Focus on breathing and posture.",
+  "Pay attention to tricky notes or rhythms.",
+  "Record yourself and compare to the track.",
+  "Practice slowly, then gradually increase speed."
+];
+
+function renderSongs() {
+  songList.innerHTML = "";
+  if(songs.length === 0){songList.innerHTML="<p><em>No songs added yet.</em></p>"; return;}
+  const now = new Date();
+
+  songs.forEach((song,songIndex)=>{
+    const songDiv = document.createElement("div");
+    songDiv.className = "song";
+    songDiv.dataset.index = songIndex;
+
+    let overallProgress = 0;
+    if(song.modules.length>0) overallProgress=Math.floor(song.modules.reduce((a,b)=>a+b.progress,0)/song.modules.length);
+
+    let performance = song.performance ? `<audio controls src="${song.performance}"></audio>` : "";
+    let track = song.track ? `<audio controls src="${song.track}"></audio>` : "";
+    let sheet = song.sheet ? `<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>` : "";
+
+    songDiv.innerHTML = `
+      <h3>${song.name} (${song.part})</h3>
+      <p>Overall Progress: <span class="progress-text">${overallProgress}%</span></p>
+      <progress value="${overallProgress}" max="100"></progress>
+      ${performance}${track}${sheet}
+      <div class="modules"></div>
+    `;
+
+    const modulesContainer = songDiv.querySelector(".modules");
+    song.modules.forEach((mod,modIndex)=>{
+      const moduleDate = mod.deadline ? new Date(mod.deadline) : null;
+      const isLate = moduleDate && now > moduleDate && mod.progress<100;
+      const modDiv = document.createElement("div");
+      modDiv.className="module";
+      modDiv.innerHTML=`
+        <strong>Module ${modIndex+1}</strong> - Progress: <span class="mod-progress-text">${mod.progress}%</span>
+        <progress value="${mod.progress}" max="100"></progress><br>
+        <button class="mod-resume-btn"${mod.progress>=100?" disabled":""}>Resume</button>
+        ${mod.deadline?`<span class="deadline">${isLate?'⚠ Deadline passed!':'Deadline: '+mod.deadline}</span>`:""}
+        <div class="tip"></div>
+      `;
+      modulesContainer.appendChild(modDiv);
+
+      const resumeBtn = modDiv.querySelector(".mod-resume-btn");
+      const progressBar = modDiv.querySelector("progress");
+      const progressText = modDiv.querySelector(".mod-progress-text");
+      const tipDiv = modDiv.querySelector(".tip");
+
+      resumeBtn.addEventListener("click", ()=>{
+        mod.progress = Math.min(mod.progress+10,100);
+        progressBar.value = mod.progress;
+        progressText.textContent = mod.progress+"%";
+        tipDiv.textContent = tips[Math.floor(Math.random()*tips.length)];
+        saveSongs();
+        renderSongs();
+      });
+    });
+
+    songList.appendChild(songDiv);
+  });
+}
+
+// Add new song
+songForm.addEventListener("submit", async function(e){
+  e.preventDefault();
+  const name = document.getElementById("songName").value;
+  const part = document.getElementById("part").value;
+  const modulesCount = parseInt(document.getElementById("modulesCount").value);
+  const performanceFile = document.getElementById("performance").files[0];
+  const trackFile = document.getElementById("track").files[0];
+  const sheetFile = document.getElementById("sheet").files[0];
+
+  const performanceBase64 = await fileToBase64(performanceFile);
+  const trackBase64 = await fileToBase64(trackFile);
+  const sheetBase64 = await fileToBase64(sheetFile);
+
+  const modules = [];
+  for(let i=0;i<modulesCount;i++){
+    let deadline = prompt(`Enter deadline for Module ${i+1} (YYYY-MM-DD) or leave empty:`);
+    modules.push({progress:0, deadline:deadline||null});
+  }
+
+  songs.push({name, part, modules, performance:performanceBase64, track:trackBase64, sheet:sheetBase64});
+  saveSongs();
+  renderSongs();
+  songForm.reset();
+});
+
+renderSongs();
+</script>
+</div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choir Vocal Coach - Sign Up, Modules, Deadlines & Reminders</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+h1,h2 { color: #333; }
+.container { max-width: 700px; margin: auto; }
+.section { background: white; padding: 20px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 30px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+.song { padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+.module { margin-left: 15px; padding: 5px 0; }
+label { display: block; margin-bottom: 8px; font-weight: bold; }
+input, select, button { width: 100%; margin-bottom: 15px; padding: 6px; }
+button { background: #0078d7; color: white; border: none; border-radius: 5px; cursor: pointer; }
+button:disabled { background: #ccc; cursor: not-allowed; }
+progress { width: 100%; height: 20px; margin-bottom: 10px; }
+audio { display: block; margin-bottom: 5px; }
+a { display: block; margin-bottom: 5px; color: #0078d7; text-decoration: none; }
+.tip { font-style: italic; color: #555; margin-bottom: 5px; }
+.deadline { font-weight: bold; }
+.deadline.upcoming { color: orange; }
+.deadline.late { color: red; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Choir Vocal Coach</h1>
+
+<!-- Sign Up Section -->
+<div class="section signup" id="signupSection">
+  <h2>Sign Up</h2>
+  <form id="signupForm">
+    <label for="email">Email Address:</label>
+    <input type="text" id="email" placeholder="example@gmail.com" required>
+    <label for="phone">Phone Number:</label>
+    <input type="text" id="phone" placeholder="1234567890" required>
+    <button type="submit">Sign Up</button>
+  </form>
+</div>
+
+<!-- Dashboard & Song Input -->
+<div id="mainApp" style="display:none;">
+  <div class="section song-input">
+    <h2>Add a New Song</h2>
+    <form id="songForm">
+      <label for="songName">Song Name:</label>
+      <input type="text" id="songName" required>
+      <label for="part">Select Choir Part:</label>
+      <select id="part" required>
+        <option value="">--Choose your part--</option>
+        <option value="soprano">Soprano</option>
+        <option value="alto">Alto</option>
+        <option value="tenor">Tenor</option>
+        <option value="bass">Bass</option>
+      </select>
+      <label for="modulesCount">Number of Modules:</label>
+      <input type="number" id="modulesCount" min="1" max="10" value="4">
+      <label for="performance">Performance Recording:</label>
+      <input type="file" id="performance" accept="audio/*">
+      <label for="track">Instrumental Track:</label>
+      <input type="file" id="track" accept="audio/*">
+      <label for="sheet">PDF Sheet Music:</label>
+      <input type="file" id="sheet" accept=".pdf">
+      <button type="submit">Add Song</button>
+    </form>
+  </div>
+
+  <div class="section dashboard">
+    <h2>My Dashboard</h2>
+    <div id="songList"><p><em>No songs added yet.</em></p></div>
+  </div>
+</div>
+
+<script>
+const signupForm = document.getElementById("signupForm");
+const signupSection = document.getElementById("signupSection");
+const mainApp = document.getElementById("mainApp");
+
+let user = JSON.parse(localStorage.getItem("user") || "null");
+if(user){ signupSection.style.display="none"; mainApp.style.display="block"; }
+
+signupForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  if(!email.includes("@")) { alert("Please enter a valid email."); return; }
+  if(!/^\d+$/.test(phone)) { alert("Phone must contain only digits."); return; }
+  user={email,phone};
+  localStorage.setItem("user", JSON.stringify(user));
+  alert("Sign Up Successful!");
+  signupSection.style.display="none"; mainApp.style.display="block";
+});
+
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs(){ localStorage.setItem("songs", JSON.stringify(songs)); }
+function fileToBase64(file){ return new Promise((resolve,reject)=>{ if(!file) resolve(null); const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=e=>reject(e); reader.readAsDataURL(file);}); }
+
+const tips = [
+  "Warm up your voice before practicing this module.",
+  "Focus on breathing and posture.",
+  "Pay attention to tricky notes or rhythms.",
+  "Record yourself and compare to the track.",
+  "Practice slowly, then gradually increase speed."
+];
+
+function renderSongs(){
+  songList.innerHTML="";
+  if(songs.length===0){songList.innerHTML="<p><em>No songs added yet.</em></p>"; return;}
+  const now=new Date();
+  let reminders=[];
+
+  songs.forEach((song,songIndex)=>{
+    const songDiv=document.createElement("div");
+    songDiv.className="song"; songDiv.dataset.index=songIndex;
+
+    let overallProgress=0;
+    if(song.modules.length>0) overallProgress=Math.floor(song.modules.reduce((a,b)=>a+b.progress,0)/song.modules.length);
+
+    let performance=song.performance?`<audio controls src="${song.performance}"></audio>`:"";
+    let track=song.track?`<audio controls src="${song.track}"></audio>`:"";
+    let sheet=song.sheet?`<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>`:"";
+
+    songDiv.innerHTML=`
+      <h3>${song.name} (${song.part})</h3>
+      <p>Overall Progress: <span class="progress-text">${overallProgress}%</span></p>
+      <progress value="${overallProgress}" max="100"></progress>
+      ${performance}${track}${sheet}
+      <div class="modules"></div>
+    `;
+
+    const modulesContainer=songDiv.querySelector(".modules");
+    song.modules.forEach((mod,modIndex)=>{
+      const moduleDate=mod.deadline?new Date(mod.deadline):null;
+      let statusClass="";
+      if(moduleDate){
+        if(now>moduleDate && mod.progress<100) { statusClass="late"; reminders.push(`${song.name} Module ${modIndex+1} deadline passed!`);}
+        else if((moduleDate-now)/86400000<=2 && mod.progress<100){statusClass="upcoming"; reminders.push(`${song.name} Module ${modIndex+1} deadline approaching!`);}
+      }
+
+      const modDiv=document.createElement("div");
+      modDiv.className="module";
+      modDiv.innerHTML=`
+        <strong>Module ${modIndex+1}</strong> - Progress: <span class="mod-progress-text">${mod.progress}%</span>
+        <progress value="${mod.progress}" max="100"></progress><br>
+        <button class="mod-resume-btn"${mod.progress>=100?" disabled":""}>Resume</button>
+        ${mod.deadline?`<span class="deadline ${statusClass}">${mod.deadline}</span>`:""}
+        <div class="tip"></div>
+      `;
+
+      modulesContainer.appendChild(modDiv);
+
+      const resumeBtn=modDiv.querySelector(".mod-resume-btn");
+      const progressBar=modDiv.querySelector("progress");
+      const progressText=modDiv.querySelector(".mod-progress-text");
+      const tipDiv=modDiv.querySelector(".tip");
+
+      resumeBtn.addEventListener("click", ()=>{
+        mod.progress=Math.min(mod.progress+10,100);
+        progressBar.value=mod.progress;
+        progressText.textContent=mod.progress+"%";
+        tipDiv.textContent=tips[Math.floor(Math.random()*tips.length)];
+        saveSongs(); renderSongs();
+      });
+    });
+
+    songList.appendChild(songDiv);
+  });
+
+  // Show pop-up reminders
+  if(reminders.length>0){
+    alert("⚠ Reminder:\n" + reminders.join("\n"));
+  }
+}
+
+songForm.addEventListener("submit", async function(e){
+  e.preventDefault();
+  const name=document.getElementById("songName").value;
+  const part=document.getElementById("part").value;
+  const modulesCount=parseInt(document.getElementById("modulesCount").value);
+  const performanceFile=document.getElementById("performance").files[0];
+  const trackFile=document.getElementById("track").files[0];
+  const sheetFile=document.getElementById("sheet").files[0];
+
+  const performanceBase64=await fileToBase64(performanceFile);
+  const trackBase64=await fileToBase64(trackFile);
+  const sheetBase64=await fileToBase64(sheetFile);
+
+  const modules=[];
+  for(let i=0;i<modulesCount;i++){
+    let deadline=prompt(`Enter deadline for Module ${i+1} (YYYY-MM-DD) or leave empty:`); 
+    modules.push({progress:0, deadline:deadline||null});
+  }
+
+  songs.push({name, part, modules, performance:performanceBase64, track:trackBase64, sheet:sheetBase64});
+  saveSongs(); renderSongs(); songForm.reset();
+});
+
+renderSongs();
+</script>
+</div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choir Vocal Coach - Sign Up & Roles</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+h1,h2 { color: #333; }
+.container { max-width: 700px; margin: auto; }
+.section { background: white; padding: 20px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 30px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+.song { padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+.module { margin-left: 15px; padding: 5px 0; }
+label { display: block; margin-bottom: 8px; font-weight: bold; }
+input, select, button { width: 100%; margin-bottom: 15px; padding: 6px; }
+button { background: #0078d7; color: white; border: none; border-radius: 5px; cursor: pointer; }
+button:disabled { background: #ccc; cursor: not-allowed; }
+progress { width: 100%; height: 20px; margin-bottom: 10px; }
+audio { display: block; margin-bottom: 5px; }
+a { display: block; margin-bottom: 5px; color: #0078d7; text-decoration: none; }
+.tip { font-style: italic; color: #555; margin-bottom: 5px; }
+.deadline { font-weight: bold; }
+.deadline.upcoming { color: orange; }
+.deadline.late { color: red; }
+.role-popup { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; }
+.role-content { background:white; padding:30px; border-radius:10px; text-align:center; max-width:400px; }
+.role-content button { width: 45%; margin: 5px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Choir Vocal Coach</h1>
+
+<!-- Sign Up Section -->
+<div class="section signup" id="signupSection">
+  <h2>Sign Up</h2>
+  <form id="signupForm">
+    <label for="email">Email Address:</label>
+    <input type="text" id="email" placeholder="example@gmail.com" required>
+    <label for="phone">Phone Number:</label>
+    <input type="text" id="phone" placeholder="1234567890" required>
+    <button type="submit">Sign Up</button>
+  </form>
+</div>
+
+<!-- Role Selection Popup -->
+<div class="role-popup" id="rolePopup" style="display:none;">
+  <div class="role-content">
+    <h2>Select Your Role</h2>
+    <button id="choirMasterBtn">Choir Master</button>
+    <button id="choirMemberBtn">Choir Member</button>
+  </div>
+</div>
+
+<!-- Dashboard & Song Input -->
+<div id="mainApp" style="display:none;">
+  <div class="section song-input" id="songInputSection">
+    <h2>Add a New Song</h2>
+    <form id="songForm">
+      <label for="songName">Song Name:</label>
+      <input type="text" id="songName" required>
+      <label for="part">Select Choir Part:</label>
+      <select id="part" required>
+        <option value="">--Choose your part--</option>
+        <option value="soprano">Soprano</option>
+        <option value="alto">Alto</option>
+        <option value="tenor">Tenor</option>
+        <option value="bass">Bass</option>
+      </select>
+      <label for="modulesCount">Number of Modules:</label>
+      <input type="number" id="modulesCount" min="1" max="10" value="4">
+      <label for="performance">Performance Recording:</label>
+      <input type="file" id="performance" accept="audio/*">
+      <label for="track">Instrumental Track:</label>
+      <input type="file" id="track" accept="audio/*">
+      <label for="sheet">PDF Sheet Music:</label>
+      <input type="file" id="sheet" accept=".pdf">
+      <button type="submit">Add Song</button>
+    </form>
+  </div>
+
+  <div class="section dashboard">
+    <h2>My Dashboard</h2>
+    <div id="songList"><p><em>No songs added yet.</em></p></div>
+  </div>
+</div>
+
+<script>
+// --- Sign Up ---
+const signupForm = document.getElementById("signupForm");
+const signupSection = document.getElementById("signupSection");
+const mainApp = document.getElementById("mainApp");
+const rolePopup = document.getElementById("rolePopup");
+let user = JSON.parse(localStorage.getItem("user") || "null");
+let role = localStorage.getItem("role") || null;
+
+if(user){
+  signupSection.style.display="none";
+  if(role) { mainApp.style.display="block"; } 
+  else { rolePopup.style.display="flex"; }
+}
+
+signupForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  if(!email.includes("@")) { alert("Please enter a valid email."); return; }
+  if(!/^\d+$/.test(phone)) { alert("Phone must contain only digits."); return; }
+  user={email,phone};
+  localStorage.setItem("user", JSON.stringify(user));
+  signupSection.style.display="none";
+  rolePopup.style.display="flex";
+});
+
+// --- Role Selection ---
+document.getElementById("choirMasterBtn").addEventListener("click", ()=>{
+  role="choirMaster";
+  localStorage.setItem("role",role);
+  rolePopup.style.display="none";
+  mainApp.style.display="block";
+  alert("Welcome Choir Master! You can customize coaching instructions.");
+});
+document.getElementById("choirMemberBtn").addEventListener("click", ()=>{
+  role="choirMember";
+  localStorage.setItem("role",role);
+  rolePopup.style.display="none";
+  mainApp.style.display="block";
+  alert("Welcome Choir Member! Access your song dashboard.");
+});
+
+// --- Choir App Logic ---
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs(){ localStorage.setItem("songs", JSON.stringify(songs)); }
+function fileToBase64(file){ return new Promise((resolve,reject)=>{ if(!file) resolve(null); const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=e=>reject(e); reader.readAsDataURL(file);}); }
+
+const tips = [
+  "Warm up your voice before practicing this module.",
+  "Focus on breathing and posture.",
+  "Pay attention to tricky notes or rhythms.",
+  "Record yourself and compare to the track.",
+  "Practice slowly, then gradually increase speed."
+];
+
+function renderSongs(){
+  songList.innerHTML="";
+  if(songs.length===0){songList.innerHTML="<p><em>No songs added yet.</em></p>"; return;}
+  const now=new Date();
+  let reminders=[];
+
+  songs.forEach((song,songIndex)=>{
+    const songDiv=document.createElement("div");
+    songDiv.className="song"; songDiv.dataset.index=songIndex;
+    let overallProgress=0;
+    if(song.modules.length>0) overallProgress=Math.floor(song.modules.reduce((a,b)=>a+b.progress,0)/song.modules.length);
+    let performance=song.performance?`<audio controls src="${song.performance}"></audio>`:"";
+    let track=song.track?`<audio controls src="${song.track}"></audio>`:"";
+    let sheet=song.sheet?`<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>`:"";
+    songDiv.innerHTML=`
+      <h3>${song.name} (${song.part})</h3>
+      <p>Overall Progress: <span class="progress-text">${overallProgress}%</span></p>
+      <progress value="${overallProgress}" max="100"></progress>
+      ${performance}${track}${sheet}
+      <div class="modules"></div>
+    `;
+
+    const modulesContainer=songDiv.querySelector(".modules");
+    song.modules.forEach((mod,modIndex)=>{
+      const moduleDate=mod.deadline?new Date(mod.deadline):null;
+      let statusClass="";
+      if(moduleDate){
+        if(now>moduleDate && mod.progress<100) { statusClass="late"; reminders.push(`${song.name} Module ${modIndex+1} deadline passed!`);}
+        else if((moduleDate-now)/86400000<=2 && mod.progress<100){statusClass="upcoming"; reminders.push(`${song.name} Module ${modIndex+1} deadline approaching!`);}
+      }
+
+      const modDiv=document.createElement("div");
+      modDiv.className="module";
+      modDiv.innerHTML=`
+        <strong>Module ${modIndex+1}</strong> - Progress: <span class="mod-progress-text">${mod.progress}%</span>
+        <progress value="${mod.progress}" max="100"></progress><br>
+        <button class="mod-resume-btn"${mod.progress>=100?" disabled":""}>Resume</button>
+        ${mod.deadline?`<span class="deadline ${statusClass}">${mod.deadline}</span>`:""}
+        <div class="tip"></div>
+      `;
+
+      modulesContainer.appendChild(modDiv);
+
+      const resumeBtn=modDiv.querySelector(".mod-resume-btn");
+      const progressBar=modDiv.querySelector("progress");
+      const progressText=modDiv.querySelector(".mod-progress-text");
+      const tipDiv=modDiv.querySelector(".tip");
+
+      resumeBtn.addEventListener("click", ()=>{
+        mod.progress=Math.min(mod.progress+10,100);
+        progressBar.value=mod.progress;
+        progressText.textContent=mod.progress+"%";
+        tipDiv.textContent=tips[Math.floor(Math.random()*tips.length)];
+        saveSongs(); renderSongs();
+      });
+    });
+    songList.appendChild(songDiv);
+  });
+
+  if(reminders.length>0){ alert("⚠ Reminder:\n" + reminders.join("\n")); }
+}
+
+songForm.addEventListener("submit", async function(e){
+  e.preventDefault();
+  const name=document.getElementById("songName").value;
+  const part=document.getElementById("part").value;
+  const modulesCount=parseInt(document.getElementById("modulesCount").value);
+  const performanceFile=document.getElementById("performance").files[0];
+  const trackFile=document.getElementById("track").files[0];
+  const sheetFile=document.getElementById("sheet").files[0];
+  const performanceBase64=await fileToBase64(performanceFile);
+  const trackBase64=await fileToBase64(trackFile);
+  const sheetBase64=await fileToBase64(sheetFile);
+
+  const modules=[];
+  for(let i=0;i<modulesCount;i++){
+    let deadline=prompt(`Enter deadline for Module ${i+1} (YYYY-MM-DD) or leave empty:`); 
+    modules.push({progress:0, deadline:deadline||null});
+  }
+
+  songs.push({name, part, modules, performance:performanceBase64, track:trackBase64, sheet:sheetBase64});
+  saveSongs(); renderSongs(); songForm.reset();
+});
+
+renderSongs();
+</script>
+</div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choir Vocal Coach - Sign Up & Roles</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f9; }
+.banner { background-color: black; color: white; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; }
+.container { max-width: 700px; margin: 20px auto; }
+.section { background: white; padding: 20px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 30px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+.song { padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+.module { margin-left: 15px; padding: 5px 0; }
+label { display: block; margin-bottom: 8px; font-weight: bold; }
+input, select, button { width: 100%; margin-bottom: 15px; padding: 6px; }
+button { background: #0078d7; color: white; border: none; border-radius: 5px; cursor: pointer; }
+button:disabled { background: #ccc; cursor: not-allowed; }
+progress { width: 100%; height: 20px; margin-bottom: 10px; }
+audio { display: block; margin-bottom: 5px; }
+a { display: block; margin-bottom: 5px; color: #0078d7; text-decoration: none; }
+.tip { font-style: italic; color: #555; margin-bottom: 5px; }
+.deadline { font-weight: bold; }
+.deadline.upcoming { color: orange; }
+.deadline.late { color: red; }
+.role-popup { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; }
+.role-content { background:white; padding:30px; border-radius:10px; text-align:center; max-width:400px; }
+.role-content button { width: 45%; margin: 5px; }
+</style>
+</head>
+<body>
+
+<div class="banner">🎵 Choir Vocal Coach 🎵</div>
+
+<div class="container">
+<h1 style="text-align:center;">Welcome to the Choir Vocal Coach App</h1>
+
+<!-- Sign Up Section -->
+<div class="section signup" id="signupSection">
+  <h2>Sign Up</h2>
+  <form id="signupForm">
+    <label for="email">Email Address:</label>
+    <input type="text" id="email" placeholder="example@gmail.com" required>
+    <label for="phone">Phone Number:</label>
+    <input type="text" id="phone" placeholder="1234567890" required>
+    <button type="submit">Sign Up</button>
+  </form>
+</div>
+
+<!-- Role Selection Popup -->
+<div class="role-popup" id="rolePopup" style="display:none;">
+  <div class="role-content">
+    <h2>Select Your Role</h2>
+    <button id="choirMasterBtn">Choir Master</button>
+    <button id="choirMemberBtn">Choir Member</button>
+  </div>
+</div>
+
+<!-- Dashboard & Song Input -->
+<div id="mainApp" style="display:none;">
+  <div class="section song-input" id="songInputSection">
+    <h2>Add a New Song</h2>
+    <form id="songForm">
+      <label for="songName">Song Name:</label>
+      <input type="text" id="songName" required>
+      <label for="part">Select Choir Part:</label>
+      <select id="part" required>
+        <option value="">--Choose your part--</option>
+        <option value="soprano">Soprano</option>
+        <option value="alto">Alto</option>
+        <option value="tenor">Tenor</option>
+        <option value="bass">Bass</option>
+      </select>
+      <label for="modulesCount">Number of Modules:</label>
+      <input type="number" id="modulesCount" min="1" max="10" value="4">
+      <label for="performance">Performance Recording:</label>
+      <input type="file" id="performance" accept="audio/*">
+      <label for="track">Instrumental Track:</label>
+      <input type="file" id="track" accept="audio/*">
+      <label for="sheet">PDF Sheet Music:</label>
+      <input type="file" id="sheet" accept=".pdf">
+      <button type="submit">Add Song</button>
+    </form>
+  </div>
+
+  <div class="section dashboard">
+    <h2>My Dashboard</h2>
+    <div id="songList"><p><em>No songs added yet.</em></p></div>
+  </div>
+</div>
+
+<script>
+// --- Sign Up ---
+const signupForm = document.getElementById("signupForm");
+const signupSection = document.getElementById("signupSection");
+const mainApp = document.getElementById("mainApp");
+const rolePopup = document.getElementById("rolePopup");
+let user = JSON.parse(localStorage.getItem("user") || "null");
+let role = localStorage.getItem("role") || null;
+
+if(user){
+  signupSection.style.display="none";
+  if(role) { mainApp.style.display="block"; } 
+  else { rolePopup.style.display="flex"; }
+}
+
+signupForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  if(!email.includes("@")) { alert("Please enter a valid email."); return; }
+  if(!/^\d+$/.test(phone)) { alert("Phone must contain only digits."); return; }
+  user={email,phone};
+  localStorage.setItem("user", JSON.stringify(user));
+  signupSection.style.display="none";
+  rolePopup.style.display="flex";
+});
+
+// --- Role Selection ---
+document.getElementById("choirMasterBtn").addEventListener("click", ()=>{
+  role="choirMaster";
+  localStorage.setItem("role",role);
+  rolePopup.style.display="none";
+  mainApp.style.display="block";
+  alert("Welcome Choir Master! You can customize coaching instructions.");
+});
+document.getElementById("choirMemberBtn").addEventListener("click", ()=>{
+  role="choirMember";
+  localStorage.setItem("role",role);
+  rolePopup.style.display="none";
+  mainApp.style.display="block";
+  alert("Welcome Choir Member! Access your song dashboard.");
+});
+
+// --- Choir App Logic ---
+const songForm = document.getElementById("songForm");
+const songList = document.getElementById("songList");
+let songs = JSON.parse(localStorage.getItem("songs") || "[]");
+
+function saveSongs(){ localStorage.setItem("songs", JSON.stringify(songs)); }
+function fileToBase64(file){ return new Promise((resolve,reject)=>{ if(!file) resolve(null); const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=e=>reject(e); reader.readAsDataURL(file);}); }
+
+const tips = [
+  "Warm up your voice before practicing this module.",
+  "Focus on breathing and posture.",
+  "Pay attention to tricky notes or rhythms.",
+  "Record yourself and compare to the track.",
+  "Practice slowly, then gradually increase speed"
+];
+
+function renderSongs(){
+  songList.innerHTML="";
+  if(songs.length===0){songList.innerHTML="<p><em>No songs added yet.</em></p>"; return;}
+  const now=new Date();
+  let reminders=[];
+
+  songs.forEach((song,songIndex)=>{
+    const songDiv=document.createElement("div");
+    songDiv.className="song"; songDiv.dataset.index=songIndex;
+    let overallProgress=0;
+    if(song.modules.length>0) overallProgress=Math.floor(song.modules.reduce((a,b)=>a+b.progress,0)/song.modules.length);
+    let performance=song.performance?`<audio controls src="${song.performance}"></audio>`:"";
+    let track=song.track?`<audio controls src="${song.track}"></audio>`:"";
+    let sheet=song.sheet?`<a href="${song.sheet}" target="_blank">Sheet Music PDF</a>`:"";
+    songDiv.innerHTML=`
+      <h3>${song.name} (${song.part})</h3>
+      <p>Overall Progress: <span class="progress-text">${overallProgress}%</span></p>
+      <progress value="${overallProgress}" max="100"></progress>
+      ${performance}${track}${sheet}
+      <div class="modules"></div>
+    `;
+
+    const modulesContainer=songDiv.querySelector(".modules");
+    song.modules.forEach((mod,modIndex)=>{
+      const moduleDate=mod.deadline?new Date(mod.deadline):null;
+      let statusClass="";
+      if(moduleDate){
+        if(now>moduleDate && mod.progress<100) { statusClass="late"; reminders.push(`${song.name} Module ${modIndex+1} deadline passed!`);}
+        else if((moduleDate-now)/86400000<=2 && mod.progress<100){statusClass="upcoming"; reminders.push(`${song.name} Module ${modIndex+1} deadline approaching!`);}
+      }
+
+      const modDiv=document.createElement("div");
+      modDiv.className="module";
+      modDiv.innerHTML=`
+        <strong>Module ${modIndex+1}</strong> - Progress: <span class="mod-progress-text">${mod.progress}%</span>
+        <progress value="${mod.progress}" max="100"></progress><br>
+        <button class="mod-resume-btn"${mod.progress>=100?" disabled":""}>Resume</button>
+        ${mod.deadline?`<span class="deadline ${statusClass}">${mod.deadline}</span>`:""}
+        <div class="tip"></div>
+      `;
+
+      modulesContainer.appendChild(modDiv);
+
+      const resumeBtn=modDiv.querySelector(".mod-resume-btn");
+      const progressBar=modDiv.querySelector("progress");
+      const progressText=modDiv.querySelector(".mod-progress-text");
+      const tipDiv=modDiv.querySelector(".tip");
+
+      resumeBtn.addEventListener("click", ()=>{
+        mod.progress=Math.min(mod.progress+10,100);
+        progressBar.value=mod.progress;
+        progressText.textContent=mod.progress+"%";
+        tipDiv.textContent=tips[Math.floor(Math.random()*tips.length)];
+        saveSongs(); renderSongs();
+      });
+    });
+    songList.appendChild(songDiv);
+  });
+
+  if(reminders.length>0){ alert("⚠ Reminder:\n" + reminders.join("\n")); }
+}
+
+songForm.addEventListener("submit", async function(e){
+  e.preventDefault();
+  const name=document.getElementById("songName").value;
+  const part=document.getElementById("part").value;
+  const modulesCount=parseInt(document.getElementById("modulesCount").value);
+  const performanceFile=document.getElementById("performance").files[0];
+  const trackFile=document.getElementById("track").files[0];
+  const sheetFile=document.getElementById("sheet").files[0];
+  const performanceBase64=await fileToBase64(performanceFile);
+  const trackBase64=await fileToBase64(trackFile);
+  const sheetBase64=await fileToBase64(sheetFile);
+
+  const modules=[];
+  for(let i=0;i<modulesCount;i++){
+    let deadline=prompt(`Enter deadline for Module ${i+1} (YYYY-MM-DD) or leave empty:`); 
+    modules.push({progress:0, deadline:deadline||null});
+  }
+
+  songs.push({name, part, modules, performance:performanceBase64, track:trackBase64, sheet:sheetBase64});
+  saveSongs(); renderSongs(); songForm.reset();
+});
+
+renderSongs();
+</script>
+</div>
+</body>
+</html>
+<!-- Add this inside the <div class="container">, above the mainApp section -->
+<div class="section" id="masterSettings" style="display:none;">
+  <h2>Choir Master Settings</h2>
+  <label for="defaultTip">Default Coaching Tip:</label>
+  <input type="text" id="defaultTip" placeholder="e.g., Warm up before practice">
+  <label for="defaultDeadline">Default Module Deadline (YYYY-MM-DD):</label>
+  <input type="date" id="defaultDeadline">
+  <label for="coachingStyle">Coaching Style:</label>
+  <select id="coachingStyle">
+    <option value="encouraging">Encouraging</option>
+    <option value="strict">Strict</option>
+    <option value="balanced">Balanced</option>
+  </select>
+  <button id="saveMasterSettings">Save Settings</button>
+</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choir Vocal Coach</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f9; }
+.banner { background-color: black; color: white; display:flex; justify-content:space-around; align-items:center; padding: 10px 0; }
+.banner button { background: transparent; border: 2px solid white; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+.banner button:hover { background: white; color: black; }
+.container { max-width: 900px; margin: 20px auto; }
+.section { display:none; background: white; padding: 20px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 30px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+.song { padding: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+.module { margin-left: 15px; padding: 5px 0; }
+label { display: block; margin-bottom: 8px; font-weight: bold; }
+input, select, button { width: 100%; margin-bottom: 15px; padding: 6px; }
+button:disabled { background: #ccc; cursor: not-allowed; }
+progress { width: 100%; height: 20px; margin-bottom: 10px; }
+audio { display: block; margin-bottom: 5px; }
+a { display: block; margin-bottom: 5px; color: #0078d7; text-decoration: none; }
+.tip { font-style: italic; color: #555; margin-bottom: 5px; }
+.deadline { font-weight: bold; }
+.deadline.upcoming { color: orange; }
+.deadline.late { color: red; }
+.role-popup { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; }
+.role-content { background:white; padding:30px; border-radius:10px; text-align:center; max-width:400px; }
+.role-content button { width: 45%; margin: 5px; }
+</style>
+</head>
+<body>
+
+<!-- Black banner with buttons -->
+<div class="banner">
+  <button id="navHome">Home</button>
+  <button id="navContacts">Phone Numbers</button>
+  <button id="navNewSong">New Song</button>
+  <button id="navSettings">⚙️</button>
+  <button id="navMaster">Master Control</button>
+  <button id="navNotifications">🔔</button>
+</div>
+
+<div class="container">
+  <!-- Sign Up Section -->
+  <div class="section" id="signupSection">
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+      <label for="email">Email Address:</label>
+      <input type="text" id="email" placeholder="example@gmail.com" required>
+      <label for="phone">Phone Number:</label>
+      <input type="text" id="phone" placeholder="1234567890" required>
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+
+  <!-- Role Selection Popup -->
+  <div class="role-popup" id="rolePopup" style="display:none;">
+    <div class="role-content">
+      <h2>Select Your Role</h2>
+      <button id="choirMasterBtn">Choir Master</button>
+      <button id="choirMemberBtn">Choir Member</button>
+    </div>
+  </div>
+
+  <!-- Home/Dashboard Page -->
+  <div class="section" id="homePage">
+    <h2>Dashboard</h2>
+    <div id="songList"><p><em>No songs added yet.</em></p></div>
+  </div>
+
+  <!-- Contacts Page -->
+  <div class="section" id="contactsPage">
+    <h2>All Contacts</h2>
+    <ul id="contactsList"></ul>
+  </div>
+
+  <!-- New Song Page -->
+  <div class="section" id="newSongPage">
+    <h2>Add a New Song</h2>
+    <form id="songForm">
+      <label for="songName">Song Name:</label>
+      <input type="text" id="songName" required>
+      <label for="part">Select Choir Part:</label>
+      <select id="part" required>
+        <option value="">--Choose your part--</option>
+        <option value="soprano">Soprano</option>
+        <option value="alto">Alto</option>
+        <option value="tenor">Tenor</option>
+        <option value="bass">Bass</option>
+      </select>
+      <label for="modulesCount">Number of Modules:</label>
+      <input type="number" id="modulesCount" min="1" max="10" value="4">
+      <label for="performance">Performance Recording:</label>
+      <input type="file" id="performance" accept="audio/*">
+      <label for="track">Instrumental Track:</label>
+      <input type="file" id="track" accept="audio/*">
+      <label for="sheet">PDF Sheet Music:</label>
+      <input type="file" id="sheet" accept=".pdf">
+      <button type="submit">Add Song</button>
+    </form>
+  </div>
+
+  <!-- Settings Page -->
+  <div class="section" id="settingsPage">
+    <h2>Settings</h2>
+    <p>Customize website appearance and behavior here.</p>
+  </div>
+
+  <!-- Master Control Page -->
+  <div class="section" id="masterPage">
+    <h2>Master Control</h2>
+    <p>Access and control choir members' assignments here.</p>
+  </div>
+
+  <!-- Notifications Page -->
+  <div class="section" id="notificationsPage">
+    <h2>Notifications</h2>
+    <ul id="notificationsList"></ul>
+  </div>
+</div>
+
+<script>
+// Navigation
+const pages = {
+  home: document.getElementById("homePage"),
+  contacts: document.getElementById("contactsPage"),
+  newSong: document.getElementById("newSongPage"),
+  settings: document.getElementById("settingsPage"),
+  master: document.getElementById("masterPage"),
+  notifications: document.getElementById("notificationsPage")
+};
+
+function showPage(pageId){
+  Object.values(pages).forEach(p=>p.style.display="none");
+  pages[pageId].style.display="block";
+}
+
+// Attach nav buttons
+document.getElementById("navHome").addEventListener("click", ()=>showPage("home"));
+document.getElementById("navContacts").addEventListener("click", ()=>showPage("contacts"));
+document.getElementById("navNewSong").addEventListener("click", ()=>showPage("newSong"));
+document.getElementById("navSettings").addEventListener("click", ()=>showPage("settings"));
+document.getElementById("navMaster").addEventListener("click", ()=>showPage("master"));
+document.getElementById("navNotifications").addEventListener("click", ()=>showPage("notifications"));
+
+// Load contacts from localStorage
+function loadContacts(){
+  const users = JSON.parse(localStorage.getItem("allUsers")||"[]");
+  const ul = document.getElementById("contactsList");
+  ul.innerHTML="";
+  if(users.length===0){ ul.innerHTML="<li>No contacts yet.</li>"; return; }
+  users.forEach(u=>{
+    const li=document.createElement("li");
+    li.textContent=`Email: ${u.email} | Phone: ${u.phone}`;
+    ul.appendChild(li);
+  });
+}
+
+// Save new user to allUsers
+const signupForm = document.getElementById("signupForm");
+signupForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  if(!email.includes("@")) { alert("Enter valid email"); return; }
+  if(!/^\d+$/.test(phone)) { alert("Phone must contain only digits"); return; }
+  const allUsers = JSON.parse(localStorage.getItem("allUsers")||"[]");
+  allUsers.push({email, phone});
+  localStorage.setItem("allUsers", JSON.stringify(allUsers));
+  alert("Signed up successfully!");
+  showPage("home");
+  loadContacts();
+});
+
+// Initialize
+showPage("home");
+loadContacts();
+</script>
+</body>
+</html>
+<!-- Black Banner Navigation -->
+<div id="banner">
+  <button class="navBtn" onclick="showPage('home')">Home</button>
+  <button class="navBtn" onclick="showPage('phoneNumbers')">Phone Numbers</button>
+  <button class="navBtn" onclick="showPage('newSong')">New Song</button>
+  <button class="navBtn" onclick="showPage('settings')">⚙️</button>
+  <button class="navBtn" id="masterControlBtn">Master Control</button>
+  <button class="navBtn" onclick="showPage('notifications')">🔔</button>
+</div>
+
+<!-- Pages -->
+<div id="pages">
+  <div id="home" class="page"> 
+    <h2>Dashboard</h2>
+    <p>Welcome to your choir dashboard.</p>
+  </div>
+
+  <div id="phoneNumbers" class="page" style="display:none;">
+    <h2>Contacts</h2>
+    <ul id="contactList"></ul>
+  </div>
+
+  <div id="newSong" class="page" style="display:none;">
+    <h2>Upload a New Song</h2>
+    <input type="file" accept=".pdf">
+    <p>(Import PDF feature goes here)</p>
+  </div>
+
+  <div id="settings" class="page" style="display:none;">
+    <h2>Website Settings</h2>
+    <p>Customize your experience here.</p>
+  </div>
+
+  <div id="masterControl" class="page" style="display:none;">
+    <h2>Master Control</h2>
+    <p>Only Choir Masters can assign tasks and control choir settings.</p>
+  </div>
+
+  <div id="notifications" class="page" style="display:none;">
+    <h2>Notifications</h2>
+    <ul id="notificationList">
+      <li>No new assignments yet.</li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  #banner {
+    background: black;
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+  }
+  .navBtn {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .navBtn:hover {
+    background: white;
+    color: black;
+  }
+  .page { padding: 20px; }
+</style>
+
+<script>
+  let role = localStorage.getItem("role"); // already set at sign-up
+
+  // Switch pages
+  function showPage(pageId) {
+    document.querySelectorAll(".page").forEach(p => p.style.display="none");
+    document.getElementById(pageId).style.display = "block";
+  }
+
+  // Restrict Master Control
+  document.getElementById("masterControlBtn").addEventListener("click", ()=>{
+    if(role === "choirMaster"){
+      showPage("masterControl");
+    } else {
+      alert("Access restricted: Choir Masters only.");
+    }
+  });
+
+  // Load contacts
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+  const contactList = document.getElementById("contactList");
+  users.forEach(u=>{
+    let li = document.createElement("li");
+    li.textContent = `${u.email} | ${u.phone}`;
+    contactList.appendChild(li);
+  });
+</script>
+<!-- Master Control Page -->
+<div id="masterControl" class="page" style="display:none;">
+  <h2>Master Control</h2>
+  <p>Assign new tasks to choir members:</p>
+  <input type="text" id="assignmentInput" placeholder="Enter assignment..." style="width:60%;">
+  <button onclick="createAssignment()">Assign</button>
+  
+  <h3>All Assignments</h3>
+  <ul id="allAssignments"></ul>
+</div>
+
+<!-- Notifications Page -->
+<div id="notifications" class="page" style="display:none;">
+  <h2>Notifications</h2>
+  <ul id="notificationList"></ul>
+</div>
+
+<script>
+  let assignments = JSON.parse(localStorage.getItem("assignments") || "[]");
+
+  function renderAssignments() {
+    // Render notifications
+    const notificationList = document.getElementById("notificationList");
+    notificationList.innerHTML = "";
+    if(assignments.length === 0){
+      notificationList.innerHTML = "<li>No new assignments yet.</li>";
+    } else {
+      assignments.forEach((a, i)=>{
+        let li = document.createElement("li");
+        li.innerHTML = `<strong>Assignment ${i+1}:</strong> ${a.text} 
+                        <button onclick="viewAssignment(${i})">View</button>`;
+        notificationList.appendChild(li);
+      });
+    }
+
+    // Render all assignments in Master Control
+    const allAssignments = document.getElementById("allAssignments");
+    allAssignments.innerHTML = "";
+    assignments.forEach((a, i)=>{
+      let li = document.createElement("li");
+      li.textContent = a.text;
+      allAssignments.appendChild(li);
+    });
+  }
+
+  // Create new assignment
+  function createAssignment(){
+    let input = document.getElementById("assignmentInput");
+    let text = input.value.trim();
+    if(text){
+      assignments.push({text: text, date: new Date().toLocaleString()});
+      localStorage.setItem("assignments", JSON.stringify(assignments));
+      input.value = "";
+      renderAssignments();
+    }
+  }
+
+  // View assignment details
+  function viewAssignment(i){
+    alert("Assignment Details:\n\n" + assignments[i].text + "\n\nAssigned on: " + assignments[i].date);
+  }
+
+  // Initialize
+  renderAssignments();
+</script>
+<!-- Home / Dashboard -->
+<div id="home" class="page" style="display:none;">
+  <h2>Dashboard</h2>
+  <div id="myProgress">
+    <h3>My Songs</h3>
+    <ul id="songList"></ul>
+  </div>
+  
+  <!-- This section only shows for Choir Masters -->
+  <div id="allMembersProgress" style="display:none; margin-top:20px;">
+    <h3>Choir Members Progress</h3>
+    <table border="1" cellpadding="5" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th>Song</th>
+          <th>Progress</th>
+        </tr>
+      </thead>
+      <tbody id="membersProgressTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Simulated logged-in user (replace with actual login info in your app)
+  let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+  let progressData = JSON.parse(localStorage.getItem("progressData") || "{}");
+  
+  // Example structure:
+  // progressData = {
+  //   "memberEmail@gmail.com": [{ song:"Song A", progress: 40 }, { song:"Song B", progress: 90 }],
+  //   "otherMember@gmail.com": [{ song:"Song X", progress: 75 }]
+  // }
+
+  function renderDashboard() {
+    // Render MY songs
+    const songList = document.getElementById("songList");
+    songList.innerHTML = "";
+    let myProgress = progressData[currentUser.email] || [];
+    if(myProgress.length === 0){
+      songList.innerHTML = "<li>No songs yet.</li>";
+    } else {
+      myProgress.forEach(song=>{
+        let li = document.createElement("li");
+        li.textContent = `${song.song} - ${song.progress}%`;
+        songList.appendChild(li);
+      });
+    }
+
+    // If Choir Master, render ALL members’ progress
+    if(currentUser.role === "master"){
+      document.getElementById("allMembersProgress").style.display = "block";
+      const tableBody = document.getElementById("membersProgressTable");
+      tableBody.innerHTML = "";
+
+      Object.keys(progressData).forEach(memberEmail=>{
+        let memberSongs = progressData[memberEmail];
+        memberSongs.forEach(song=>{
+          let tr = document.createElement("tr");
+          tr.innerHTML = `<td>${memberEmail}</td><td>${song.song}</td><td>${song.progress}%</td>`;
+          tableBody.appendChild(tr);
+        });
+      });
+    }
+  }
+
+  renderDashboard();
+</script>
+<!-- 🔔 Notifications button in banner -->
+<button id="notifBtn" class="banner-btn">
+  🔔 <span id="notifCount" style="
+    background:red;
+    color:white;
+    border-radius:50%;
+    padding:2px 6px;
+    font-size:12px;
+    position:relative;
+    top:-8px;
+    left:-3px;
+    display:none;
+  ">0</span>
+</button>
+
+<!-- Notifications Page -->
+<div id="notifications" class="page" style="display:none;">
+  <h2>Notifications</h2>
+  <ul id="notifList"></ul>
+</div>
+
+<!-- Master Control Page (only for masters) -->
+<div id="masterControl" class="page" style="display:none;">
+  <h2>Master Control</h2>
+  <form id="assignForm">
+    <label>Assign to Member Email:</label>
+    <input type="email" id="assignEmail" required><br><br>
+
+    <label>Assignment Title:</label>
+    <input type="text" id="assignTitle" required><br><br>
+
+    <label>Details:</label>
+    <textarea id="assignDetails" required></textarea><br><br>
+
+    <button type="submit">Send Assignment</button>
+  </form>
+</div>
+
+<script>
+  let assignments = JSON.parse(localStorage.getItem("assignments") || "{}");
+  // Structure: assignments = { "memberEmail@gmail.com": [ {title:"", details:"", read:false} ] }
+
+  let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  // === Assignments from Choir Master ===
+  document.getElementById("assignForm")?.addEventListener("submit", e=>{
+    e.preventDefault();
+    let email = document.getElementById("assignEmail").value;
+    let title = document.getElementById("assignTitle").value;
+    let details = document.getElementById("assignDetails").value;
+
+    if(!assignments[email]) assignments[email] = [];
+    assignments[email].push({title, details, read:false});
+
+    localStorage.setItem("assignments", JSON.stringify(assignments));
+    alert("Assignment sent!");
+    e.target.reset();
+  });
+
+  // === Render Notifications ===
+  function renderNotifications(){
+    let notifList = document.getElementById("notifList");
+    notifList.innerHTML = "";
+
+    let myAssignments = assignments[currentUser.email] || [];
+    let unreadCount = 0;
+
+    myAssignments.forEach((a, idx)=>{
+      if(!a.read) unreadCount++;
+      let li = document.createElement("li");
+      li.innerHTML = `<b>${a.title}</b> - <a href="#" onclick="openAssignment(${idx})">View</a>`;
+      notifList.appendChild(li);
+    });
+
+    // Badge counter
+    let badge = document.getElementById("notifCount");
+    if(unreadCount > 0){
+      badge.textContent = unreadCount;
+      badge.style.display = "inline-block";
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  // === View Assignment ===
+  function openAssignment(idx){
+    let myAssignments = assignments[currentUser.email];
+    let a = myAssignments[idx];
+    alert("Assignment: " + a.title + "\n\nDetails:\n" + a.details);
+    myAssignments[idx].read = true;
+    localStorage.setItem("assignments", JSON.stringify(assignments));
+    renderNotifications();
+  }
+
+  renderNotifications();
+</script>
+<!-- Choir Master Dashboard -->
+<div id="masterDashboard" class="page" style="display:none;">
+  <h2>Choir Master Dashboard</h2>
+  <table border="1" cellpadding="8" style="border-collapse:collapse; width:100%; background:white; color:black;">
+    <thead>
+      <tr>
+        <th>Member Email</th>
+        <th>Assignments</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="memberProgress"></tbody>
+  </table>
+</div>
+
+<script>
+  function renderMasterDashboard(){
+    if(currentUser.role !== "master") return; // Only masters see this
+    
+    let tbody = document.getElementById("memberProgress");
+    tbody.innerHTML = "";
+
+    for(let email in assignments){
+      assignments[email].forEach((a)=>{
+        let row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${email}</td>
+          <td>${a.title}</td>
+          <td>${a.read ? "✅ Completed (Read)" : "🕒 Pending (Unread)"}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+  }
+
+  // Re-render dashboard whenever master visits that page
+  document.getElementById("masterDashboard")?.addEventListener("show", renderMasterDashboard);
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choir Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    .banner { background: black; color: white; display: flex; justify-content: space-around; padding: 10px; }
+    .banner button { background: none; border: 1px solid white; color: white; padding: 8px 15px; cursor: pointer; border-radius: 6px; }
+    .banner button:hover { background: white; color: black; }
+    .content { padding: 20px; }
+    .hidden { display: none; }
+    .notification-badge {
+      background: red; color: white; border-radius: 50%; padding: 2px 8px;
+      font-size: 12px; position: relative; top: -10px; left: -5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Banner -->
+  <div class="banner">
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('contacts')">Phone Numbers</button>
+    <button onclick="showPage('newSong')">New Song</button>
+    <button onclick="showPage('settings')">⚙️</button>
+    <button id="masterControlBtn" onclick="showPage('masterControl')">Master Control</button>
+    <button onclick="showPage('notifications')">🔔 <span id="notifBadge" class="notification-badge hidden">0</span></button>
+    <span id="profileName" style="margin-left:auto; padding-left:15px;"></span>
+  </div>
+
+  <!-- Pages -->
+  <div id="home" class="content">
+    <h2 id="welcomeMessage"></h2>
+    <p>This is your dashboard. Track your song progress here 🎶</p>
+    <div id="songList"></div>
+  </div>
+
+  <div id="contacts" class="content hidden">
+    <h2>Contacts</h2>
+    <ul id="contactsList"></ul>
+  </div>
+
+  <div id="newSong" class="content hidden">
+    <h2>Upload a New Song</h2>
+    <input type="file" accept=".pdf">
+    <p id="uploadedBy"></p>
+  </div>
+
+  <div id="settings" class="content hidden">
+    <h2>Settings</h2>
+    <p>Customize your choir dashboard.</p>
+  </div>
+
+  <div id="masterControl" class="content hidden">
+    <h2>Master Control (Choir Masters Only)</h2>
+    <div id="allProgress"></div>
+  </div>
+
+  <div id="notifications" class="content hidden">
+    <h2>Notifications</h2>
+    <ul id="notifList"></ul>
+  </div>
+
+  <!-- Sign Up -->
+  <div id="signupPage" class="content hidden">
+    <h2>Sign Up</h2>
+    <input id="firstName" placeholder="First Name" required><br><br>
+    <input id="lastName" placeholder="Last Name" required><br><br>
+    <input id="email" placeholder="Email" required><br><br>
+    <input id="phone" placeholder="Phone Number" required><br><br>
+    <input id="password" type="password" placeholder="Password" required><br><br>
+    <button onclick="signUp()">Sign Up</button>
+  </div>
+
+  <!-- Role Select -->
+  <div id="roleSelect" class="content hidden">
+    <h2>Select Your Role</h2>
+    <button onclick="setRole('master')">Choir Master</button>
+    <button onclick="setRole('member')">Choir Member</button>
+  </div>
+
+<script>
+  let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  function showPage(page) {
+    document.querySelectorAll('.content').forEach(div => div.classList.add('hidden'));
+    document.getElementById(page).classList.remove('hidden');
+    if (page === 'home') updateWelcome();
+    if (page === 'newSong') document.getElementById("uploadedBy").innerText = "Uploaded by " + currentUser.firstName + " " + currentUser.lastName;
+    if (page === 'contacts') loadContacts();
+  }
+
+  function updateWelcome() {
+    if (currentUser) {
+      document.getElementById("welcomeMessage").innerText = "Welcome, " + currentUser.firstName + " " + currentUser.lastName + " 🎶";
+      document.getElementById("profileName").innerText = currentUser.firstName + " " + currentUser.lastName;
+    }
+  }
+
+  function signUp() {
+    let user = {
+      firstName: document.getElementById("firstName").value,
+      lastName: document.getElementById("lastName").value,
+      email: document.getElementById("email").value,
+      phone: document.getElementById("phone").value,
+      password: document.getElementById("password").value,
+      role: null
+    };
+    if (!user.firstName || !user.lastName || !user.email || !user.phone || !user.password) {
+      alert("All fields are required!");
+      return;
+    }
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+    allUsers.push(user);
+    localStorage.setItem("allUsers", JSON.stringify(allUsers));
+    currentUser = user;
+    document.getElementById("signupPage").classList.add("hidden");
+    document.getElementById("roleSelect").classList.remove("hidden");
+  }
+
+  function setRole(role) {
+    currentUser.role = role;
+    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    if (role !== "master") document.getElementById("masterControlBtn").style.display = "none";
+    document.getElementById("roleSelect").classList.add("hidden");
+    showPage('home');
+  }
+
+  function loadContacts() {
+    let list = document.getElementById("contactsList");
+    list.innerHTML = "";
+    let users = JSON.parse(localStorage.getItem("allUsers")) || [];
+    users.forEach(u => {
+      let li = document.createElement("li");
+      li.innerText = `${u.firstName} ${u.lastName} - ${u.email} | ${u.phone}`;
+      list.appendChild(li);
+    });
+  }
+
+  // Initialize
+  if (!currentUser) {
+    document.getElementById("signupPage").classList.remove("hidden");
+  } else {
+    if (currentUser.role) {
+      if (currentUser.role !== "master") document.getElementById("masterControlBtn").style.display = "none";
+      showPage('home');
+    } else {
+      document.getElementById("roleSelect").classList.remove("hidden");
+    }
+  }
+</script>
+</body>
+</html>
+<!-- Update banner section -->
+<div class="banner">
+  <button onclick="showPage('home')">Home</button>
+  <button onclick="showPage('contacts')">Phone Numbers</button>
+  <button onclick="showPage('newSong')">New Song</button>
+  <button onclick="showPage('settings')">⚙️</button>
+  <button id="masterControlBtn" onclick="showPage('masterControl')">Master Control</button>
+  <button onclick="showPage('notifications')">🔔 <span id="notifBadge" class="notification-badge hidden">0</span></button>
+  <span id="profileName" style="margin-left:auto; padding-left:15px;"></span>
+  <button id="logoutBtn" style="margin-left:10px; background:red; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer;">Logout</button>
+</div>
+
+<script>
+  // Logout functionality
+  document.getElementById("logoutBtn").addEventListener("click", function(){
+    localStorage.removeItem("currentUser"); // Clear session
+    location.reload(); // Reload page to go back to signup/login
+  });
+
+  // Display name in banner
+  function updateBannerName() {
+    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if(currentUser){
+      document.getElementById("profileName").innerText = currentUser.firstName + " " + currentUser.lastName;
+    }
+  }
+
+  updateBannerName();
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choir App</title>
+<style>
+body { font-family: Arial; margin:0; padding:0; background:#f4f4f4; }
+.banner { background:black; color:white; display:flex; justify-content:space-around; align-items:center; padding:10px; }
+.banner button { background:none; border:1px solid white; color:white; padding:6px 12px; border-radius:6px; cursor:pointer; }
+.banner button:hover { background:white; color:black; }
+.notification-badge { background:red; color:white; border-radius:50%; padding:2px 7px; font-size:12px; position:relative; top:-10px; left:-5px; display:none; }
+.content { padding:20px; }
+.hidden { display:none; }
+table { border-collapse: collapse; width:100%; margin-top:10px; }
+table, th, td { border:1px solid black; }
+th, td { padding:6px; text-align:left; }
+</style>
+</head>
+<body>
+
+<!-- Banner -->
+<div class="banner">
+  <button onclick="showPage('home')">Home</button>
+  <button onclick="showPage('contacts')">Phone Numbers</button>
+  <button onclick="showPage('newSong')">New Song</button>
+  <button onclick="showPage('settings')">⚙️</button>
+  <button id="masterControlBtn" onclick="showPage('masterControl')">Master Control</button>
+  <button onclick="showPage('notifications')">🔔 <span id="notifBadge" class="notification-badge">0</span></button>
+  <span id="profileName" style="margin-left:auto; padding-left:15px;"></span>
+  <button id="logoutBtn" style="margin-left:10px; background:red; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer;">Logout</button>
+</div>
+
+<!-- Pages -->
+<div id="home" class="content hidden">
+  <h2 id="welcomeMessage"></h2>
+  <div id="mySongs"></div>
+  <div id="allMembersProgress" class="hidden">
+    <h3>Choir Members Progress</h3>
+    <table>
+      <thead><tr><th>Member</th><th>Song</th><th>Progress</th></tr></thead>
+      <tbody id="membersProgressTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="contacts" class="content hidden">
+  <h2>Contacts</h2>
+  <ul id="contactsList"></ul>
+</div>
+
+<div id="newSong" class="content hidden">
+  <h2>Upload a New Song</h2>
+  <input type="file" accept=".pdf"><br><br>
+  <p id="uploadedBy"></p>
+</div>
+
+<div id="settings" class="content hidden">
+  <h2>Settings</h2>
+  <p>Customize your choir dashboard.</p>
+</div>
+
+<div id="masterControl" class="content hidden">
+  <h2>Master Control (Choir Master Only)</h2>
+  <form id="assignForm">
+    <label>Assign to Member Email:</label><br>
+    <input type="email" id="assignEmail" required><br><br>
+    <label>Assignment Title:</label><br>
+    <input type="text" id="assignTitle" required><br><br>
+    <label>Details:</label><br>
+    <textarea id="assignDetails" required></textarea><br><br>
+    <button type="submit">Send Assignment</button>
+  </form>
+  <h3>All Assignments</h3>
+  <ul id="allAssignments"></ul>
+</div>
+
+<div id="notifications" class="content hidden">
+  <h2>Notifications</h2>
+  <ul id="notifList"></ul>
+</div>
+
+<!-- Sign Up -->
+<div id="signupPage" class="content hidden">
+  <h2>Sign Up</h2>
+  <input id="firstName" placeholder="First Name" required><br><br>
+  <input id="lastName" placeholder="Last Name" required><br><br>
+  <input id="email" placeholder="Email" required><br><br>
+  <input id="phone" placeholder="Phone Number" required><br><br>
+  <input id="password" type="password" placeholder="Password" required><br><br>
+  <button onclick="signUp()">Sign Up</button>
+</div>
+
+<div id="roleSelect" class="content hidden">
+  <h2>Select Your Role</h2>
+  <button onclick="setRole('master')">Choir Master</button>
+  <button onclick="setRole('member')">Choir Member</button>
+</div>
+
+<script>
+let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+let progressData = JSON.parse(localStorage.getItem("progressData") || "{}");
+let assignments = JSON.parse(localStorage.getItem("assignments") || "{}");
+let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+function showPage(page){
+  document.querySelectorAll('.content').forEach(div => div.classList.add('hidden'));
+  document.getElementById(page).classList.remove('hidden');
+  if(page==='home') renderDashboard();
+  if(page==='contacts') renderContacts();
+  if(page==='newSong') document.getElementById("uploadedBy").innerText = "Uploaded by "+currentUser.firstName+" "+currentUser.lastName;
+  if(page==='notifications') renderNotifications();
+  if(page==='masterControl') renderMasterAssignments();
+}
+
+function signUp(){
+  let user = {
+    firstName: document.getElementById("firstName").value.trim(),
+    lastName: document.getElementById("lastName").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    password: document.getElementById("password").value,
+    role:null
+  };
+  if(!user.firstName||!user.lastName||!user.email||!user.phone||!user.password){ alert("Fill all fields!"); return; }
+  allUsers.push(user);
+  localStorage.setItem("allUsers", JSON.stringify(allUsers));
+  currentUser = user;
+  localStorage.setItem("currentUser", JSON.stringify(currentUser));
+  document.getElementById("signupPage").classList.add("hidden");
+  document.getElementById("roleSelect").classList.remove("hidden");
+}
+
+function setRole(role){
+  currentUser.role = role;
+  localStorage.setItem("currentUser", JSON.stringify(currentUser));
+  if(role!=='master') document.getElementById("masterControlBtn").style.display='none';
+  document.getElementById("roleSelect").classList.add("hidden");
+  showPage('home');
+}
+
+function renderDashboard(){
+  document.getElementById("welcomeMessage").innerText="Welcome, "+currentUser.firstName+" "+currentUser.lastName+" 🎶";
+  document.getElementById("profileName").innerText=currentUser.firstName+" "+currentUser.lastName;
+  // My songs
+  let mySongs = progressData[currentUser.email]||[];
+  let mySongsDiv = document.getElementById("mySongs");
+  mySongsDiv.innerHTML="<h3>My Songs</h3>";
+  if(mySongs.length===0) mySongsDiv.innerHTML+="<p>No songs yet.</p>";
+  else{
+    mySongs.forEach(s=>{
+      mySongsDiv.innerHTML+=`<p>${s.song} - ${s.progress}% <button onclick="updateProgress('${s.song}')">Update</button></p>`;
+    });
+  }
+  // Choir Master view
+  if(currentUser.role==='master'){
+    document.getElementById("allMembersProgress").classList.remove("hidden");
+    let tbody = document.getElementById("membersProgressTable");
+    tbody.innerHTML="";
+    for(let userEmail in progressData){
+      progressData[userEmail].forEach(s=>{
+        let member = allUsers.find(u=>u.email===userEmail);
+        let tr = document.createElement("tr");
+        tr.innerHTML=`<td>${member.firstName} ${member.lastName}</td><td>${s.song}</td><td>${s.progress}%</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+  } else document.getElementById("allMembersProgress").classList.add("hidden");
+}
+
+function updateProgress(song){
+  let val = prompt("Enter new progress % for "+song);
+  if(val!==null){
+    val=parseInt(val);
+    if(!progressData[currentUser.email]) progressData[currentUser.email]=[];
+    let songObj = progressData[currentUser.email].find(s=>s.song===song);
+    if(songObj) songObj.progress=val;
+    else progressData[currentUser.email].push({song:song, progress:val});
+    localStorage.setItem("progressData", JSON.stringify(progressData));
+    renderDashboard();
+  }
+}
+
+function renderContacts(){
+  let ul = document.getElementById("contactsList");
+  ul.innerHTML="";
+  allUsers.forEach(u=>{
+    ul.innerHTML+=`<li>${u.firstName} ${u.lastName} - ${u.email} | ${u.phone}</li>`;
+  });
+}
+
+// Master Control
+document.getElementById("assignForm")?.addEventListener("submit", e=>{
+  e.preventDefault();
+  let email=document.getElementById("assignEmail").value;
+  let title=document.getElementById("assignTitle").value;
+  let details=document.getElementById("assignDetails").value;
+  if(!assignments[email]) assignments[email]=[];
+  assignments[email].push({title,details,read:false});
+  localStorage.setItem("assignments", JSON.stringify(assignments));
+  renderMasterAssignments();
+  alert("Assignment sent!");
+  document.getElementById("assignForm").reset();
+});
+
+function renderMasterAssignments(){
+  let list=document.getElementById("allAssignments");
+  list.innerHTML="";
+  for(let email in assignments){
+    assignments[email].forEach(a=>{
+      let li=document.createElement("li");
+      li.textContent=email+": "+a.title+" - "+(a.read?"Read":"Unread");
+      list.appendChild(li);
+    });
+  }
+}
+
+// Notifications
+function renderNotifications(){
+  let notifList=document.getElementById("notifList");
+  notifList.innerHTML="";
+  let myAssignments=assignments[currentUser.email]||[];
+  let unreadCount=0;
+  myAssignments.forEach((a,idx)=>{
+    if(!a.read) unreadCount++;
+    let li=document.createElement("li");
+    li.innerHTML=`<b>${a.title}</b> <button onclick="viewAssignment(${idx})">View</button>`;
+    notifList.appendChild(li);
+  });
+  let badge=document.getElementById("notifBadge");
+  if(unreadCount>0){ badge.innerText=unreadCount; badge.style.display="inline-block"; }
+  else badge.style.display="none";
+}
+
+function viewAssignment(idx){
+  let myAssignments=assignments[currentUser.email];
+  let a=myAssignments[idx];
+  alert("Assignment: "+a.title+"\n\nDetails:\n"+a.details);
+  myAssignments[idx].read=true;
+  localStorage.setItem("assignments", JSON.stringify(assignments));
+  renderNotifications();
+}
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click",()=>{
+  localStorage.removeItem("currentUser");
+  location.reload();
+});
+
+// Initialize
+if(!currentUser) document.getElementById("signupPage").classList.remove("hidden");
+else if(!currentUser.role) document.getElementById("roleSelect").classList.remove("hidden");
+else showPage('home');
+</script>
+</body>
+</html>
+<!-- Bottom-left Gemini Button -->
+<button id="geminiBtn" style="
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #4B0082; 
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;">
+    ♦️
+</button>
+
+<!-- Gemini Page -->
+<div id="geminiPage" class="content hidden">
+  <h2>Gemini AI Assistant</h2>
+  <p>Ask your choir-related questions here! 🎵</p>
+  <textarea id="chatInput" placeholder="Type your question..." style="width:100%; height:100px;"></textarea><br><br>
+  <button onclick="sendMessage()">Send</button>
+  <div id="chatOutput" style="margin-top:20px; background:white; padding:10px; min-height:100px; border:1px solid black;"></div>
+</div>
+
+<script>
+document.getElementById("geminiBtn").addEventListener("click", () => {
+    showPage('geminiPage');
+});
+
+// Simple AI response simulation
+function sendMessage() {
+    let input = document.getElementById("chatInput").value.trim();
+    if(!input) return;
+    let output = document.getElementById("chatOutput");
+    let userMsg = document.createElement("p");
+    userMsg.innerHTML = "<b>You:</b> " + input;
+    output.appendChild(userMsg);
+
+    let aiMsg = document.createElement("p");
+    aiMsg.innerHTML = "<b>Gemini:</b> " + "Thanks for your question! Here's a tip: focus on your breath control and pitch for this part of the song.";
+    output.appendChild(aiMsg);
+
+    document.getElementById("chatInput").value = "";
+    output.scrollTop = output.scrollHeight;
+}
+</script>
+<!-- Gemini Button and Page (replace previous Gemini snippet) -->
+<button id="geminiBtn" style="
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #4B0082; 
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;">
+    ♦️
+</button>
+
+<div id="geminiPage" class="content hidden">
+  <h2>Gemini AI Assistant</h2>
+  <p>Ask your choir-related questions here! 🎵</p>
+  <textarea id="chatInput" placeholder="Type your question..." style="width:100%; height:100px;"></textarea><br><br>
+  <button onclick="sendMessage()">Send</button>
+  <div id="chatOutput" style="margin-top:20px; background:white; padding:10px; min-height:100px; border:1px solid black;"></div>
+</div>
+
+<script>
+document.getElementById("geminiBtn").addEventListener("click", () => {
+    showPage('geminiPage');
+    renderWelcomeGemini();
+});
+
+function renderWelcomeGemini(){
+    let output=document.getElementById("chatOutput");
+    output.innerHTML="";
+    if(!currentUser) return;
+    let msg=document.createElement("p");
+    msg.innerHTML="<b>Gemini:</b> Hello "+currentUser.firstName+" "+currentUser.lastName+"! I can help you with your songs, progress, and assignments.";
+    output.appendChild(msg);
+}
+
+function sendMessage() {
+    if(!currentUser) return;
+    let input = document.getElementById("chatInput").value.trim();
+    if(!input) return;
+    let output = document.getElementById("chatOutput");
+    let userMsg = document.createElement("p");
+    userMsg.innerHTML = "<b>You:</b> " + input;
+    output.appendChild(userMsg);
+
+    // AI response based on role and assignments
+    let aiMsg = document.createElement("p");
+    aiMsg.innerHTML = "<b>Gemini:</b> ";
+
+    if(currentUser.role==='member'){
+        // Check assignments
+        let myAssignments = assignments[currentUser.email]||[];
+        if(myAssignments.length>0){
+            aiMsg.innerHTML += "You have "+myAssignments.length+" assignments. ";
+            aiMsg.innerHTML += "For example, the latest assignment: '"+myAssignments[myAssignments.length-1].title+"' - "+myAssignments[myAssignments.length-1].details+" ";
+        }
+        let mySongs = progressData[currentUser.email]||[];
+        if(mySongs.length>0){
+            aiMsg.innerHTML += "You are currently practicing "+mySongs.length+" songs. Keep up the good work!";
+        } else {
+            aiMsg.innerHTML += "You haven't added any songs yet. Go to 'New Song' to start!";
+        }
+    } else if(currentUser.role==='master'){
+        aiMsg.innerHTML += "As Choir Master, you can view all members' progress and assign new modules. You currently have "+allUsers.length+" users in your choir.";
+    } else {
+        aiMsg.innerHTML += "Please select your role to get personalized assistance.";
+    }
+
+    output.appendChild(aiMsg);
+    document.getElementById("chatInput").value = "";
+    output.scrollTop = output.scrollHeight;
+}
+</script>
+<script>
+function sendMessage() {
+    if(!currentUser) return;
+    let input = document.getElementById("chatInput").value.trim();
+    if(!input) return;
+    let output = document.getElementById("chatOutput");
+    let userMsg = document.createElement("p");
+    userMsg.innerHTML = "<b>You:</b> " + input;
+    output.appendChild(userMsg);
+
+    let aiMsg = document.createElement("p");
+    aiMsg.innerHTML = "<b>Gemini:</b> ";
+
+    if(currentUser.role==='member'){
+        let mySongs = progressData[currentUser.email] || [];
+        let myAssignments = assignments[currentUser.email] || [];
+
+        if(mySongs.length>0){
+            aiMsg.innerHTML += "Here's your song coaching guidance:\n";
+            mySongs.forEach(s => {
+                if(s.progress < 30){
+                    aiMsg.innerHTML += `- ${s.song}: Focus on learning the notes slowly. Try to isolate tricky measures.\n`;
+                } else if(s.progress < 70){
+                    aiMsg.innerHTML += `- ${s.song}: Good progress! Focus on timing and dynamics.\n`;
+                } else {
+                    aiMsg.innerHTML += `- ${s.song}: Almost there! Practice performing smoothly from start to finish.\n`;
+                }
+            });
+        } else {
+            aiMsg.innerHTML += "You don't have songs yet. Go to 'New Song' to start practicing!";
+        }
+
+        if(myAssignments.length>0){
+            aiMsg.innerHTML += `\nYou have ${myAssignments.length} pending assignment(s). Prioritize completing them according to the deadlines.`;
+        }
+    } else if(currentUser.role==='master'){
+        aiMsg.innerHTML += "As Choir Master, you can review members' progress and assign modules. Gemini can suggest which members might need more guidance based on their song progress.";
+    } else {
+        aiMsg.innerHTML += "Please select your role to get personalized coaching.";
+    }
+
+    output.appendChild(aiMsg);
+    document.getElementById("chatInput").value = "";
+    output.scrollTop = output.scrollHeight;
+}
+</script>
+<div id="geminiPage" class="content hidden">
+  <h2>Gemini AI Assistant</h2>
+  <p>Ask your choir-related questions or submit your vocal recordings! 🎵</p>
+  
+  <textarea id="chatInput" placeholder="Type your question..." style="width:100%; height:100px;"></textarea><br><br>
+  
+  <button onclick="sendMessage()">Send Text</button>
+  <button onclick="startRecording()">🎤 Record Vocal</button>
+  <button onclick="stopRecording()">⏹ Stop Recording</button>
+  
+  <div id="chatOutput" style="margin-top:20px; background:white; padding:10px; min-height:100px; border:1px solid black;"></div>
+</div>
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+// Start recording
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+            audioChunks = [];
+            mediaRecorder.addEventListener("dataavailable", event => {
+                audioChunks.push(event.data);
+            });
+            alert("Recording started!");
+        })
+        .catch(err => alert("Error accessing microphone: "+err));
+}
+
+// Stop recording and send to Gemini
+function stopRecording() {
+    if(!mediaRecorder) return alert("No recording in progress!");
+    mediaRecorder.stop();
+    mediaRecorder.addEventListener("stop", () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const audioURL = URL.createObjectURL(audioBlob);
+        appendAudioMessage(audioURL);
+        // Optional: store or process audioBlob later
+    });
+}
+
+// Append audio message to chat
+function appendAudioMessage(url) {
+    let output = document.getElementById("chatOutput");
+    let userMsg = document.createElement("p");
+    userMsg.innerHTML = "<b>You (vocal recording):</b><br>";
+    let audio = document.createElement("audio");
+    audio.controls = true;
+    audio.src = url;
+    userMsg.appendChild(audio);
+    output.appendChild(userMsg);
+
+    // Gemini response to the recording
+    let aiMsg = document.createElement("p");
+    aiMsg.innerHTML = "<b>Gemini:</b> Nice submission! Practice pitch accuracy and dynamics in the highlighted measures.";
+    output.appendChild(aiMsg);
+
+    output.scrollTop = output.scrollHeight;
+}
+</script>
+<div id="mySpacePage" class="content hidden">
+  <h2>Create Your Own Band/Choir Space</h2>
+  <input id="spaceName" placeholder="Space Name" style="width:50%;"><br><br>
+  <textarea id="spaceDesc" placeholder="Description of your space" style="width:50%; height:60px;"></textarea><br><br>
+  <button onclick="createSpace()">Create Space</button>
+
+  <div id="spaceDetails" style="margin-top:20px;"></div>
+</div>
+
+<script>
+let spaces = JSON.parse(localStorage.getItem("spaces") || "[]");
+
+function createSpace(){
+    let name = document.getElementById("spaceName").value.trim();
+    let desc = document.getElementById("spaceDesc").value.trim();
+    if(!name) return alert("Please enter a space name!");
+    
+    // Check if user already has a space
+    if(spaces.find(s=>s.owner===currentUser.email)){
+        return alert("You already own a space!");
+    }
+
+    let newSpace = {
+        owner: currentUser.email,
+        name: name,
+        description: desc,
+        members: [currentUser.email], // Owner added automatically
+        maxMembers: 2500
+    };
+    spaces.push(newSpace);
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpace(newSpace);
+    alert("Space created successfully!");
+}
+
+function renderSpace(space){
+    let div = document.getElementById("spaceDetails");
+    div.innerHTML = `<h3>${space.name}</h3><p>${space.description}</p>
+                     <p>Owner: ${currentUser.firstName} ${currentUser.lastName}</p>
+                     <p>Members (${space.members.length}/${space.maxMembers}):</p>
+                     <ul id="spaceMemberList"></ul>
+                     <input id="addMemberEmail" placeholder="Add member by email">
+                     <button onclick="addMember()">Add Member</button>`;
+    renderMemberList(space);
+}
+
+function renderMemberList(space){
+    let ul = document.getElementById("spaceMemberList");
+    ul.innerHTML="";
+    space.members.forEach(email=>{
+        let user = allUsers.find(u=>u.email===email);
+        if(user) ul.innerHTML+=`<li>${user.firstName} ${user.lastName} (${user.email})</li>`;
+    });
+}
+
+function addMember(){
+    let email = document.getElementById("addMemberEmail").value.trim();
+    if(!email) return alert("Enter an email!");
+    let space = spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("You must create a space first!");
+    if(space.members.length>=space.maxMembers) return alert("Space is full (max 2,500 members)!");
+    if(space.members.includes(email)) return alert("Member already in the space!");
+    
+    let userExists = allUsers.find(u=>u.email===email);
+    if(!userExists) return alert("No user found with that email!");
+    
+    space.members.push(email);
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderMemberList(space);
+    alert("Member added successfully!");
+}
+</script>
+<!-- Space Songs & Modules Section -->
+<div id="spaceSongsPage" class="content hidden">
+  <h2>Manage Songs in Your Space</h2>
+  <input id="spaceSongName" placeholder="Song Name">
+  <button onclick="addSpaceSong()">Add Song</button>
+  
+  <div id="spaceSongList" style="margin-top:20px;"></div>
+</div>
+
+<script>
+function addSpaceSong(){
+    let songName = document.getElementById("spaceSongName").value.trim();
+    if(!songName) return alert("Enter a song name!");
+    let space = spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("You must create a space first!");
+    
+    if(!space.songs) space.songs = [];
+    if(space.songs.find(s=>s.name===songName)) return alert("Song already exists in space!");
+    
+    let newSong = {
+        name: songName,
+        modules: [], // Modules of the song
+        progress: {} // Progress per member email
+    };
+    space.songs.push(newSong);
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpaceSongs(space);
+}
+
+function renderSpaceSongs(space){
+    let div = document.getElementById("spaceSongList");
+    div.innerHTML = "";
+    space.songs.forEach((song, idx)=>{
+        let songDiv = document.createElement("div");
+        songDiv.style.border="1px solid black";
+        songDiv.style.margin="5px";
+        songDiv.style.padding="5px";
+        let modulesHTML = "";
+        if(song.modules.length>0){
+            modulesHTML = "<ul>"+song.modules.map(m=>{
+                return `<li>${m.title} - Assigned to: ${m.assignedTo} - Progress: ${m.progress || 0}%</li>`;
+            }).join("")+"</ul>";
+        }
+        songDiv.innerHTML = `<b>${song.name}</b> 
+            <button onclick="assignModule(${idx})">Assign Module</button>
+            ${modulesHTML}`;
+        div.appendChild(songDiv);
+    });
+}
+
+function assignModule(songIdx){
+    let space = spaces.find(s=>s.owner===currentUser.email);
+    let song = space.songs[songIdx];
+    let title = prompt("Module title:");
+    if(!title) return;
+    let email = prompt("Assign to member email:");
+    if(!email) return;
+    if(!space.members.includes(email)) return alert("Member not in this space!");
+    
+    let newModule = {
+        title: title,
+        assignedTo: email,
+        progress: 0
+    };
+    if(!song.modules) song.modules=[];
+    song.modules.push(newModule);
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpaceSongs(space);
+    alert("Module assigned!");
+}
+
+// Example: update module progress
+function updateModuleProgress(spaceOwnerEmail, songName, moduleTitle, memberEmail, progress){
+    let space = spaces.find(s=>s.owner===spaceOwnerEmail);
+    if(!space) return;
+    let song = space.songs.find(s=>s.name===songName);
+    if(!song) return;
+    let mod = song.modules.find(m=>m.title===moduleTitle && m.assignedTo===memberEmail);
+    if(!mod) return;
+    mod.progress = progress;
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+}
+</script>
+<script>
+// Enhanced Gemini response for module-specific coaching
+function sendMessage() {
+    if(!currentUser) return;
+    let input = document.getElementById("chatInput").value.trim();
+    if(!input) return;
+    let output = document.getElementById("chatOutput");
+    
+    // Display user's message
+    let userMsg = document.createElement("p");
+    userMsg.innerHTML = "<b>You:</b> " + input;
+    output.appendChild(userMsg);
+
+    // Prepare AI response
+    let aiMsg = document.createElement("p");
+    aiMsg.innerHTML = "<b>Gemini:</b> ";
+
+    if(currentUser.role==='member'){
+        let mySpaces = spaces.filter(sp=>sp.members.includes(currentUser.email));
+        if(mySpaces.length === 0){
+            aiMsg.innerHTML += "You are not in any space yet. Create one or ask your Choir Master to add you.";
+        } else {
+            aiMsg.innerHTML += "Here’s your module coaching guidance:\n";
+            mySpaces.forEach(space=>{
+                if(space.songs){
+                    space.songs.forEach(song=>{
+                        if(song.modules){
+                            song.modules.forEach(mod=>{
+                                if(mod.assignedTo === currentUser.email){
+                                    let tip = "";
+                                    if(mod.progress < 30) tip = "Focus on learning notes slowly and isolate difficult measures.";
+                                    else if(mod.progress < 70) tip = "Good progress! Work on timing and dynamics.";
+                                    else tip = "Almost perfect! Practice performing smoothly from start to finish.";
+                                    aiMsg.innerHTML += `- ${song.name} → ${mod.title}: ${tip} (Progress: ${mod.progress || 0}%)\n`;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Optional: mention uploaded recordings
+        if(currentUserRecordings && currentUserRecordings.length > 0){
+            aiMsg.innerHTML += "\nI see you’ve uploaded some vocal recordings. Review my tips above and try implementing them in your next recording!";
+        }
+    } else if(currentUser.role==='master'){
+        aiMsg.innerHTML += "As Choir Master, Gemini can summarize each member’s module progress and suggest who may need extra guidance.";
+    } else {
+        aiMsg.innerHTML += "Please select your role to get personalized coaching.";
+    }
+
+    output.appendChild(aiMsg);
+    document.getElementById("chatInput").value = "";
+    output.scrollTop = output.scrollHeight;
+}
+</script>
+<!-- Notification Button in Banner -->
+<button id="notifBtn" style="position:relative;">
+  🔔
+  <span id="notifBadge" style="
+      position:absolute;
+      top:0;
+      right:0;
+      background:red;
+      color:white;
+      border-radius:50%;
+      padding:2px 6px;
+      font-size:12px;
+      display:none;">0</span>
+</button>
+
+<script>
+function updateNotifBadge(){
+    if(!currentUser) return;
+    let myAssignments = assignments[currentUser.email] || [];
+    let badge = document.getElementById("notifBadge");
+    if(myAssignments.length>0){
+        badge.innerText = myAssignments.length;
+        badge.style.display="inline-block";
+    } else {
+        badge.style.display="none";
+    }
+}
+
+// Call this every time assignments are updated
+updateNotifBadge();
+</script>
+function assignModule(songIdx){
+    let space = spaces.find(s=>s.owner===currentUser.email);
+    let song = space.songs[songIdx];
+    let title = prompt("Module title:");
+    if(!title) return;
+    let email = prompt("Assign to member email:");
+    if(!email) return;
+    if(!space.members.includes(email)) return alert("Member not in this space!");
+    
+    let newModule = {
+        title: title,
+        assignedTo: email,
+        progress: 0
+    };
+    if(!song.modules) song.modules=[];
+    song.modules.push(newModule);
+
+    // Update assignments
+    if(!assignments[email]) assignments[email]=[];
+    assignments[email].push({
+        title: title,
+        song: song.name,
+        space: space.name,
+        details: "New module assigned in your space: " + space.name
+    });
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    localStorage.setItem("assignments", JSON.stringify(assignments));
+    updateNotifBadge();
+    renderSpaceSongs(space);
+    alert("Module assigned and notification sent!");
+}
+function appendAudioMessage(url, moduleTitle=null, songName=null){
+    let output = document.getElementById("chatOutput");
+    let userMsg = document.createElement("p");
+    userMsg.innerHTML = "<b>You (vocal recording):</b><br>";
+    let audio = document.createElement("audio");
+    audio.controls = true;
+    audio.src = url;
+    userMsg.appendChild(audio);
+    output.appendChild(userMsg);
+
+    // Store recording with module and song info
+    if(!currentUserRecordings) currentUserRecordings=[];
+    currentUserRecordings.push({
+        url: url,
+        module: moduleTitle,
+        song: songName,
+        timestamp: new Date().toISOString()
+    });
+
+    // Gemini response
+    let aiMsg = document.createElement("p");
+    aiMsg.innerHTML = "<b>Gemini:</b> Nice submission! Work on the highlighted module measures. Progress will be updated automatically.";
+    output.appendChild(aiMsg);
+    output.scrollTop = output.scrollHeight;
+}
+<style>
+/* Banner */
+#banner {
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 999;
+}
+
+/* Banner buttons */
+#banner button {
+    background: none;
+    border: 2px solid white;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+#banner button:hover {
+    background: white;
+    color: black;
+}
+
+/* Notification Badge */
+#notifBadge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    display: none;
+}
+
+/* Page Content */
+.content {
+    margin-top: 80px; /* leave space for banner */
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    min-height: 90vh;
+}
+
+/* Gemini Chat */
+#chatOutput {
+    background: white;
+    padding: 10px;
+    min-height: 200px;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+}
+
+#chatOutput p {
+    margin: 8px 0;
+}
+
+/* Inputs and textareas */
+input, textarea {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* General Buttons */
+button {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    border: none;
+    background-color: #4B0082;
+    color: white;
+    font-weight: bold;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #6a1fb5;
+}
+
+/* Space / Song / Module Boxes */
+.spaceBox, .songBox, .moduleBox {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+/* Audio Player */
+audio {
+    margin-top: 5px;
+    width: 100%;
+}
+
+/* Gemini Bottom-left Button */
+#geminiBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #4B0082; 
+    color: white;
+    border: none;
+    padding: 14px 18px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: 0.3s;
+}
+#geminiBtn:hover {
+    background: #6a1fb5;
+}
+</style>
+<div id="banner">
+  <button onclick="showPage('dashboardPage')">Home</button>
+  <button onclick="showPage('contactsPage')">Phone Numbers</button>
+  <button onclick="showPage('newSongPage')">New Song</button>
+  <button onclick="showPage('settingsPage')">⚙️</button>
+  <button id="masterBtn" onclick="showMasterControl()">Master Control</button>
+  <button id="notifBtn" onclick="showPage('notificationsPage')">🔔<span id="notifBadge">0</span></button>
+</div>
+<div id="dashboardPage" class="content hidden">
+  <h2>Dashboard</h2>
+  <div id="songProgressList"></div>
+</div>
+
+<script>
+function renderDashboard(){
+    let container = document.getElementById("songProgressList");
+    container.innerHTML = "";
+    let songs = progressData[currentUser.email] || [];
+    songs.forEach(song=>{
+        let songDiv = document.createElement("div");
+        songDiv.className="songBox";
+        songDiv.innerHTML = `<b>${song.song}</b>
+            <div style="background:#ccc; border-radius:6px; width:100%; margin:5px 0;">
+               <div style="width:${song.progress}%; background:#4B0082; color:white; text-align:center;">${song.progress}%</div>
+            </div>`;
+
+        // Buttons
+        let resumeBtn = document.createElement("button");
+        resumeBtn.innerText = "Resume";
+        resumeBtn.onclick = ()=>resumeSong(song.song);
+
+        let startBtn = document.createElement("button");
+        startBtn.innerText = "Start";
+        startBtn.onclick = ()=>startSong(song.song);
+
+        let restartBtn = document.createElement("button");
+        restartBtn.innerText = "Restart";
+        restartBtn.disabled = song.progress < 100;
+        restartBtn.onclick = ()=>restartSong(song.song);
+
+        songDiv.appendChild(startBtn);
+        songDiv.appendChild(resumeBtn);
+        songDiv.appendChild(restartBtn);
+        container.appendChild(songDiv);
+    });
+}
+</script>
+<div id="mySpacePage" class="content hidden">
+  <h2>My Spaces</h2>
+  <input id="spaceName" placeholder="Space Name">
+  <textarea id="spaceDesc" placeholder="Description"></textarea>
+  <button onclick="createSpace()">Create Space</button>
+  <div id="spaceDetails"></div>
+</div>
+
+<script>
+function createSpace(){
+    let name = document.getElementById("spaceName").value.trim();
+    let desc = document.getElementById("spaceDesc").value.trim();
+    if(!name) return alert("Enter space name");
+    if(spaces.find(s=>s.owner===currentUser.email)) return alert("Already own a space!");
+    let space = {owner:currentUser.email, name, description:desc, members:[currentUser.email], maxMembers:2500, songs:[]};
+    spaces.push(space);
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpace(space);
+}
+
+function renderSpace(space){
+    let div = document.getElementById("spaceDetails");
+    div.innerHTML=`<h3>${space.name}</h3><p>${space.description}</p>
+                   <p>Members (${space.members.length}/${space.maxMembers}):</p>
+                   <ul id="spaceMemberList"></ul>
+                   <input id="addMemberEmail" placeholder="Add member by email">
+                   <button onclick="addMember()">Add Member</button>
+                   <input id="spaceSongName" placeholder="Add Song">
+                   <button onclick="addSpaceSong()">Add Song</button>
+                   <div id="spaceSongList"></div>`;
+    renderMemberList(space);
+    renderSpaceSongs(space);
+}
+
+function addMember(){
+    let email=document.getElementById("addMemberEmail").value.trim();
+    let space=spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("Create a space first");
+    if(space.members.length>=space.maxMembers) return alert("Space full");
+    if(!allUsers.find(u=>u.email===email)) return alert("User not found");
+    if(space.members.includes(email)) return alert("Already member");
+    space.members.push(email);
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderMemberList(space);
+}
+
+function renderMemberList(space){
+    let ul=document.getElementById("spaceMemberList");
+    ul.innerHTML="";
+    space.members.forEach(email=>{
+        let user=allUsers.find(u=>u.email===email);
+        if(user) ul.innerHTML+=`<li>${user.firstName} ${user.lastName} (${user.email})</li>`;
+    });
+}
+
+function addSpaceSong(){
+    let name=document.getElementById("spaceSongName").value.trim();
+    let space=spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("Create a space first");
+    if(space.songs.find(s=>s.name===name)) return alert("Song exists");
+    space.songs.push({name, modules:[]});
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpaceSongs(space);
+}
+
+function renderSpaceSongs(space){
+    let div=document.getElementById("spaceSongList");
+    div.innerHTML="";
+    space.songs.forEach(song=>{
+        let songDiv=document.createElement("div");
+        songDiv.className="songBox";
+        songDiv.innerHTML=`<b>${song.name}</b>
+                           <button onclick="assignModule('${song.name}')">Assign Module</button>`;
+        div.appendChild(songDiv);
+    });
+}
+</script>
+<div id="geminiPage" class="content hidden">
+  <h2>Gemini AI Assistant</h2>
+  <textarea id="chatInput" placeholder="Type question..."></textarea>
+  <button onclick="sendMessage()">Send</button>
+  <button onclick="startRecording()">🎤 Record Vocal</button>
+  <button onclick="stopRecording()">⏹ Stop Recording</button>
+  <div id="chatOutput"></div>
+</div>
+function appendAudioMessage(url,moduleTitle=null,songName=null){
+    let output=document.getElementById("chatOutput");
+    let userMsg=document.createElement("p");
+    userMsg.innerHTML="<b>You (vocal recording):</b><br>";
+    let audio=document.createElement("audio");
+    audio.controls=true; audio.src=url; userMsg.appendChild(audio);
+    output.appendChild(userMsg);
+    if(!currentUserRecordings) currentUserRecordings=[];
+    currentUserRecordings.push({url,module:songName, song:songName, timestamp:new Date().toISOString()});
+    let aiMsg=document.createElement("p");
+    aiMsg.innerHTML="<b>Gemini:</b> Nice submission! Review module progress and tips.";
+    output.appendChild(aiMsg);
+    output.scrollTop=output.scrollHeight;
+}
+function updateNotifBadge(){
+    if(!currentUser) return;
+    let myAssignments=assignments[currentUser.email]||[];
+    let badge=document.getElementById("notifBadge");
+    if(myAssignments.length>0){ badge.innerText=myAssignments.length; badge.style.display="inline-block"; }
+    else badge.style.display="none";
+}
+updateNotifBadge();
+<div id="spaceChatContainer">
+  <h4>Space Chat</h4>
+  <div id="spaceChatOutput" style="background:white; border:1px solid #ccc; padding:10px; height:200px; overflow-y:auto;"></div>
+  <textarea id="spaceChatInput" placeholder="Type your message..." style="width:100%;"></textarea>
+  <button onclick="sendSpaceMessage()">Send</button>
+  <button onclick="recordSpaceMessage()">🎤 Record Vocal</button>
+</div>
+let spaceChats = JSON.parse(localStorage.getItem("spaceChats") || "{}");
+
+// Send text message
+function sendSpaceMessage(){
+    let input = document.getElementById("spaceChatInput").value.trim();
+    if(!input) return;
+    let output = document.getElementById("spaceChatOutput");
+
+    let space = spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("No space found");
+
+    // Store message
+    if(!spaceChats[space.name]) spaceChats[space.name]=[];
+    spaceChats[space.name].push({sender:currentUser.email, text:input, type:"text", timestamp:new Date().toISOString()});
+    localStorage.setItem("spaceChats", JSON.stringify(spaceChats));
+
+    // Display
+    let msg = document.createElement("p");
+    msg.innerHTML=`<b>${currentUser.firstName} ${currentUser.lastName}:</b> ${input}`;
+    output.appendChild(msg);
+    output.scrollTop = output.scrollHeight;
+
+    document.getElementById("spaceChatInput").value="";
+}
+
+// Send vocal recording
+function recordSpaceMessage(){
+    // Implement recording start logic (use Web Audio API or input type="file" for simplicity)
+    alert("Recording started... implement actual recording logic here.");
+}
+
+function appendSpaceAudio(url){
+    let output = document.getElementById("spaceChatOutput");
+    let msg = document.createElement("p");
+    msg.innerHTML=`<b>${currentUser.firstName} ${currentUser.lastName} (vocal):</b><br>`;
+    let audio = document.createElement("audio");
+    audio.controls = true;
+    audio.src = url;
+    msg.appendChild(audio);
+    output.appendChild(msg);
+    output.scrollTop = output.scrollHeight;
+
+    let space = spaces.find(s=>s.owner===currentUser.email);
+    if(!spaceChats[space.name]) spaceChats[space.name]=[];
+    spaceChats[space.name].push({sender:currentUser.email, type:"audio", url:url, timestamp:new Date().toISOString()});
+    localStorage.setItem("spaceChats", JSON.stringify(spaceChats));
+}
+function spaceGeminiResponse(){
+    let output = document.getElementById("spaceChatOutput");
+    let space = spaces.find(s=>s.owner===currentUser.email);
+    let aiMsg = document.createElement("p");
+    aiMsg.innerHTML = "<b>Gemini:</b> ";
+
+    if(space && space.songs){
+        space.songs.forEach(song=>{
+            if(song.modules){
+                song.modules.forEach(mod=>{
+                    if(mod.assignedTo===currentUser.email){
+                        let tip="";
+                        if(mod.progress<30) tip="Focus on difficult measures.";
+                        else if(mod.progress<70) tip="Work on timing and expression.";
+                        else tip="Almost perfect! Practice start-to-finish.";
+                        aiMsg.innerHTML+=`${song.name} → ${mod.title}: ${tip}<br>`;
+                    }
+                });
+            }
+        });
+    } else {
+        aiMsg.innerHTML += "No modules assigned yet in this space.";
+    }
+    output.appendChild(aiMsg);
+    output.scrollTop = output.scrollHeight;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choir Vocal Coach</title>
+<style>
+/* Banner */
+#banner {
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 999;
+}
+#banner button {
+    background: none;
+    border: 2px solid white;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+#banner button:hover {
+    background: white;
+    color: black;
+}
+#notifBadge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    display: none;
+}
+/* Page Content */
+.content {
+    margin-top: 80px;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    min-height: 90vh;
+}
+.songBox, .spaceBox, .moduleBox {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+}
+textarea, input {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+}
+button {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    border: none;
+    background-color: #4B0082;
+    color: white;
+    font-weight: bold;
+    transition: 0.3s;
+}
+button:hover { background-color: #6a1fb5; }
+#chatOutput, #spaceChatOutput {
+    background: white;
+    padding: 10px;
+    min-height: 200px;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+}
+audio { width: 100%; margin-top:5px; }
+/* Gemini button */
+#geminiBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #4B0082;
+    color: white;
+    border: none;
+    padding: 14px 18px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+#geminiBtn:hover { background: #6a1fb5; }
+.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<!-- Banner -->
+<div id="banner">
+  <button onclick="showPage('dashboardPage')">Home</button>
+  <button onclick="showPage('contactsPage')">Phone Numbers</button>
+  <button onclick="showPage('newSongPage')">New Song</button>
+  <button onclick="showPage('settingsPage')">⚙️</button>
+  <button id="masterBtn" onclick="showMasterControl()">Master Control</button>
+  <button id="notifBtn" onclick="showPage('notificationsPage')">🔔<span id="notifBadge">0</span></button>
+</div>
+
+<!-- Pages -->
+<div id="dashboardPage" class="content hidden">
+  <h2>Dashboard</h2>
+  <div id="songProgressList"></div>
+</div>
+
+<div id="mySpacePage" class="content hidden">
+  <h2>My Spaces</h2>
+  <input id="spaceName" placeholder="Space Name">
+  <textarea id="spaceDesc" placeholder="Description"></textarea>
+  <button onclick="createSpace()">Create Space</button>
+  <div id="spaceDetails"></div>
+</div>
+
+<div id="geminiPage" class="content hidden">
+  <h2>Gemini AI Assistant</h2>
+  <textarea id="chatInput" placeholder="Type your question..."></textarea>
+  <button onclick="sendMessage()">Send Text</button>
+  <button onclick="startRecording()">🎤 Record Vocal</button>
+  <button onclick="stopRecording()">⏹ Stop Recording</button>
+  <div id="chatOutput"></div>
+</div>
+
+<!-- Gemini AI bottom-left button -->
+<button id="geminiBtn" onclick="showPage('geminiPage')">♦</button>
+
+<script>
+// Data storage
+let allUsers = JSON.parse(localStorage.getItem("allUsers")||"[]");
+let spaces = JSON.parse(localStorage.getItem("spaces")||"[]");
+let progressData = JSON.parse(localStorage.getItem("progressData")||"{}");
+let assignments = JSON.parse(localStorage.getItem("assignments")||"{}");
+let currentUser = {email:"member@example.com", firstName:"First", lastName:"Last", role:"member"}; 
+let currentUserRecordings = [];
+
+// Page navigation
+function showPage(id){
+    document.querySelectorAll('.content').forEach(p=>p.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+}
+
+// Dashboard functions
+function renderDashboard(){
+    let container = document.getElementById("songProgressList");
+    container.innerHTML="";
+    let songs = progressData[currentUser.email] || [];
+    songs.forEach(song=>{
+        let songDiv = document.createElement("div"); songDiv.className="songBox";
+        songDiv.innerHTML = `<b>${song.song}</b>
+            <div style="background:#ccc; border-radius:6px; width:100%; margin:5px 0;">
+            <div style="width:${song.progress}%; background:#4B0082; color:white; text-align:center;">${song.progress}%</div></div>`;
+        let startBtn=document.createElement("button"); startBtn.innerText="Start"; startBtn.onclick=()=>startSong(song.song);
+        let resumeBtn=document.createElement("button"); resumeBtn.innerText="Resume"; resumeBtn.onclick=()=>resumeSong(song.song);
+        let restartBtn=document.createElement("button"); restartBtn.innerText="Restart"; restartBtn.disabled=song.progress<100; restartBtn.onclick=()=>restartSong(song.song);
+        songDiv.appendChild(startBtn); songDiv.appendChild(resumeBtn); songDiv.appendChild(restartBtn);
+        container.appendChild(songDiv);
+    });
+}
+
+// Placeholder song functions
+function startSong(song){alert("Start "+song);}
+function resumeSong(song){alert("Resume "+song);}
+function restartSong(song){alert("Restart "+song);}
+
+// Spaces functions
+function createSpace(){
+    let name=document.getElementById("spaceName").value.trim();
+    let desc=document.getElementById("spaceDesc").value.trim();
+    if(!name) return alert("Enter space name");
+    if(spaces.find(s=>s.owner===currentUser.email)) return alert("Already own a space!");
+    let space={owner:currentUser.email,name,description:desc,members:[currentUser.email],maxMembers:2500,songs:[]};
+    spaces.push(space);
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpace(space);
+}
+function renderSpace(space){
+    let div=document.getElementById("spaceDetails");
+    div.innerHTML=`<h3>${space.name}</h3><p>${space.description}</p>
+        <p>Members (${space.members.length}/${space.maxMembers}):</p>
+        <ul id="spaceMemberList"></ul>
+        <input id="addMemberEmail" placeholder="Add member by email"><button onclick="addMember()">Add Member</button>
+        <input id="spaceSongName" placeholder="Add Song"><button onclick="addSpaceSong()">Add Song</button>
+        <div id="spaceSongList"></div>
+        <div id="spaceChatContainer">
+          <h4>Space Chat</h4>
+          <div id="spaceChatOutput"></div>
+          <textarea id="spaceChatInput" placeholder="Type your message..."></textarea>
+          <button onclick="sendSpaceMessage()">Send</button>
+          <button onclick="recordSpaceMessage()">🎤 Record Vocal</button>
+        </div>`;
+    renderMemberList(space); renderSpaceSongs(space);
+}
+function addMember(){
+    let email=document.getElementById("addMemberEmail").value.trim();
+    let space=spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("Create a space first");
+    if(space.members.length>=space.maxMembers) return alert("Space full");
+    if(!allUsers.find(u=>u.email===email)) return alert("User not found");
+    if(space.members.includes(email)) return alert("Already member");
+    space.members.push(email); localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderMemberList(space);
+}
+function renderMemberList(space){
+    let ul=document.getElementById("spaceMemberList"); ul.innerHTML="";
+    space.members.forEach(email=>{
+        let user=allUsers.find(u=>u.email===email);
+        if(user) ul.innerHTML+=`<li>${user.firstName} ${user.lastName} (${user.email})</li>`;
+    });
+}
+function addSpaceSong(){
+    let name=document.getElementById("spaceSongName").value.trim();
+    let space=spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("Create a space first");
+    if(space.songs.find(s=>s.name===name)) return alert("Song exists");
+    space.songs.push({name,modules:[]}); localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpaceSongs(space);
+}
+function renderSpaceSongs(space){
+    let div=document.getElementById("spaceSongList"); div.innerHTML="";
+    space.songs.forEach(song=>{
+        let songDiv=document.createElement("div"); songDiv.className="songBox";
+        songDiv.innerHTML=`<b>${song.name}</b> <button onclick="assignModule('${song.name}')">Assign Module</button>`;
+        div.appendChild(songDiv);
+    });
+}
+
+// Space chat functions
+let spaceChats = JSON.parse(localStorage.getItem("spaceChats")||"{}");
+function sendSpaceMessage(){
+    let input=document.getElementById("spaceChatInput").value.trim(); if(!input) return;
+    let space=spaces.find(s=>s.owner===currentUser.email); if(!space) return alert("No space");
+    if(!spaceChats[space.name]) spaceChats[space.name]=[];
+    spaceChats[space.name].push({sender:currentUser.email,type:"text",text:input,timestamp:new Date().toISOString()});
+    localStorage.setItem("spaceChats",JSON.stringify(spaceChats));
+    let output=document.getElementById("spaceChatOutput");
+    let msg=document.createElement("p"); msg.innerHTML=`<b>${currentUser.firstName} ${currentUser.lastName}:</b> ${input}`;
+    output.appendChild(msg); output.scrollTop=output.scrollHeight;
+    document.getElementById("spaceChatInput").value="";
+}
+function recordSpaceMessage(){ alert("Recording... implement actual logic"); }
+function assignModule(song){ alert("Assign module for "+song); }
+function showMasterControl(){ if(currentUser.role!=="master") return alert("Only Choir Master can access"); alert("Master Control Page"); }
+
+</script>
+</body>
+</html>
+<button onclick="startRecording()">🎤 Record Vocal</button>
+<button onclick="stopRecording()">⏹ Stop Recording</button>
+let mediaRecorder;
+let recordedChunks = [];
+
+// Start recording
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+        recordedChunks = [];
+
+        mediaRecorder.ondataavailable = e => {
+            if(e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = e => {
+            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+            const url = URL.createObjectURL(blob);
+            appendAudioMessage(url); // Gemini chat
+            appendSpaceAudio(url);   // Space chat
+        };
+
+        alert("Recording started...");
+    })
+    .catch(err => alert("Microphone access denied: " + err));
+}
+
+// Stop recording
+function stopRecording() {
+    if(mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+        alert("Recording stopped, uploaded to chat!");
+    }
+}
+
+// Append to Gemini chat
+function appendAudioMessage(url){
+    let output = document.getElementById("chatOutput");
+    let msg = document.createElement("p");
+    msg.innerHTML = `<b>${currentUser.firstName} ${currentUser.lastName} (vocal):</b><br>`;
+    let audio = document.createElement("audio");
+    audio.controls = true; audio.src = url;
+    msg.appendChild(audio);
+    output.appendChild(msg);
+    output.scrollTop = output.scrollHeight;
+
+    if(!currentUserRecordings) currentUserRecordings = [];
+    currentUserRecordings.push({url, timestamp:new Date().toISOString()});
+}
+
+// Append to Space chat
+function appendSpaceAudio(url){
+    let space = spaces.find(s => s.owner===currentUser.email);
+    if(!space) return;
+    let output = document.getElementById("spaceChatOutput");
+    let msg = document.createElement("p");
+    msg.innerHTML = `<b>${currentUser.firstName} ${currentUser.lastName} (vocal):</b><br>`;
+    let audio = document.createElement("audio");
+    audio.controls = true; audio.src = url;
+    msg.appendChild(audio);
+    output.appendChild(msg);
+    output.scrollTop = output.scrollHeight;
+
+    if(!spaceChats[space.name]) spaceChats[space.name] = [];
+    spaceChats[space.name].push({sender:currentUser.email, type:"audio", url:url, timestamp:new Date().toISOString()});
+    localStorage.setItem("spaceChats", JSON.stringify(spaceChats));
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choir Vocal Coach</title>
+<style>
+/* Banner */
+#banner {
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 999;
+}
+#banner button {
+    background: none;
+    border: 2px solid white;
+    color: white;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 14px;
+}
+#notifBadge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    display: none;
+}
+
+/* Page Content */
+.content {
+    margin-top: 80px;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    min-height: 90vh;
+}
+.songBox, .spaceBox, .moduleBox {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+}
+textarea, input {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+}
+button {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    border: none;
+    background-color: #4B0082;
+    color: white;
+    font-weight: bold;
+}
+button:hover { background-color: #6a1fb5; }
+#chatOutput, #spaceChatOutput {
+    background: white;
+    padding: 10px;
+    min-height: 200px;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+}
+audio { width: 100%; margin-top:5px; }
+/* Gemini button */
+#geminiBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #4B0082;
+    color: white;
+    border: none;
+    padding: 14px 18px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+#geminiBtn:hover { background: #6a1fb5; }
+.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<!-- Banner -->
+<div id="banner">
+  <button onclick="showPage('dashboardPage')">Home</button>
+  <button onclick="showPage('contactsPage')">Phone Numbers</button>
+  <button onclick="showPage('newSongPage')">New Song</button>
+  <button onclick="showPage('settingsPage')">⚙️</button>
+  <button id="masterBtn" onclick="showMasterControl()">Master Control</button>
+  <button id="notifBtn" onclick="showPage('notificationsPage')">🔔<span id="notifBadge">0</span></button>
+</div>
+
+<!-- Pages -->
+<div id="dashboardPage" class="content hidden">
+  <h2>Dashboard</h2>
+  <div id="songProgressList"></div>
+</div>
+
+<div id="mySpacePage" class="content hidden">
+  <h2>My Spaces</h2>
+  <input id="spaceName" placeholder="Space Name">
+  <textarea id="spaceDesc" placeholder="Description"></textarea>
+  <button onclick="createSpace()">Create Space</button>
+  <div id="spaceDetails"></div>
+</div>
+
+<div id="geminiPage" class="content hidden">
+  <h2>Gemini AI Assistant</h2>
+  <textarea id="chatInput" placeholder="Type your question..."></textarea>
+  <button onclick="sendMessage()">Send Text</button>
+  <button onclick="startRecording()">🎤 Record Vocal</button>
+  <button onclick="stopRecording()">⏹ Stop Recording</button>
+  <div id="chatOutput"></div>
+</div>
+
+<!-- Gemini AI bottom-left button -->
+<button id="geminiBtn" onclick="showPage('geminiPage')">♦</button>
+
+<script>
+// ---- User & Storage ----
+let allUsers = JSON.parse(localStorage.getItem("allUsers")||"[]");
+let spaces = JSON.parse(localStorage.getItem("spaces")||"[]");
+let progressData = JSON.parse(localStorage.getItem("progressData")||"{}");
+let assignments = JSON.parse(localStorage.getItem("assignments")||"{}");
+let spaceChats = JSON.parse(localStorage.getItem("spaceChats")||"{}");
+let currentUser = {email:"member@example.com", firstName:"First", lastName:"Last", role:"member"};
+let currentUserRecordings = [];
+
+// ---- Navigation ----
+function showPage(id){
+    document.querySelectorAll('.content').forEach(p=>p.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+}
+
+// ---- Dashboard ----
+function renderDashboard(){
+    let container = document.getElementById("songProgressList");
+    container.innerHTML="";
+    let songs = progressData[currentUser.email] || [];
+    songs.forEach(song=>{
+        let songDiv = document.createElement("div"); songDiv.className="songBox";
+        songDiv.innerHTML = `<b>${song.song}</b>
+            <div style="background:#ccc; border-radius:6px; width:100%; margin:5px 0;">
+            <div style="width:${song.progress}%; background:#4B0082; color:white; text-align:center;">${song.progress}%</div></div>`;
+        let startBtn=document.createElement("button"); startBtn.innerText="Start"; startBtn.onclick=()=>startSong(song.song);
+        let resumeBtn=document.createElement("button"); resumeBtn.innerText="Resume"; resumeBtn.onclick=()=>resumeSong(song.song);
+        let restartBtn=document.createElement("button"); restartBtn.innerText="Restart"; restartBtn.disabled=song.progress<100; restartBtn.onclick=()=>restartSong(song.song);
+        songDiv.appendChild(startBtn); songDiv.appendChild(resumeBtn); songDiv.appendChild(restartBtn);
+        container.appendChild(songDiv);
+    });
+}
+function startSong(song){alert("Start "+song);}
+function resumeSong(song){alert("Resume "+song);}
+function restartSong(song){alert("Restart "+song);}
+
+// ---- Spaces ----
+function createSpace(){
+    let name=document.getElementById("spaceName").value.trim();
+    let desc=document.getElementById("spaceDesc").value.trim();
+    if(!name) return alert("Enter space name");
+    if(spaces.find(s=>s.owner===currentUser.email)) return alert("Already own a space!");
+    let space={owner:currentUser.email,name,description:desc,members:[currentUser.email],maxMembers:2500,songs:[]};
+    spaces.push(space);
+    localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpace(space);
+}
+function renderSpace(space){
+    let div=document.getElementById("spaceDetails");
+    div.innerHTML=`<h3>${space.name}</h3><p>${space.description}</p>
+        <p>Members (${space.members.length}/${space.maxMembers}):</p>
+        <ul id="spaceMemberList"></ul>
+        <input id="addMemberEmail" placeholder="Add member by email"><button onclick="addMember()">Add Member</button>
+        <input id="spaceSongName" placeholder="Add Song"><button onclick="addSpaceSong()">Add Song</button>
+        <div id="spaceSongList"></div>
+        <div id="spaceChatContainer">
+          <h4>Space Chat</h4>
+          <div id="spaceChatOutput"></div>
+          <textarea id="spaceChatInput" placeholder="Type your message..."></textarea>
+          <button onclick="sendSpaceMessage()">Send</button>
+          <button onclick="recordSpaceMessage()">🎤 Record Vocal</button>
+        </div>`;
+    renderMemberList(space); renderSpaceSongs(space);
+}
+function addMember(){
+    let email=document.getElementById("addMemberEmail").value.trim();
+    let space=spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("Create a space first");
+    if(space.members.length>=space.maxMembers) return alert("Space full");
+    if(!allUsers.find(u=>u.email===email)) return alert("User not found");
+    if(space.members.includes(email)) return alert("Already member");
+    space.members.push(email); localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderMemberList(space);
+}
+function renderMemberList(space){
+    let ul=document.getElementById("spaceMemberList"); ul.innerHTML="";
+    space.members.forEach(email=>{
+        let user=allUsers.find(u=>u.email===email);
+        if(user) ul.innerHTML+=`<li>${user.firstName} ${user.lastName} (${user.email})</li>`;
+    });
+}
+function addSpaceSong(){
+    let name=document.getElementById("spaceSongName").value.trim();
+    let space=spaces.find(s=>s.owner===currentUser.email);
+    if(!space) return alert("Create a space first");
+    if(space.songs.find(s=>s.name===name)) return alert("Song exists");
+    space.songs.push({name,modules:[]}); localStorage.setItem("spaces", JSON.stringify(spaces));
+    renderSpaceSongs(space);
+}
+function renderSpaceSongs(space){
+    let div=document.getElementById("spaceSongList"); div.innerHTML="";
+    space.songs.forEach(song=>{
+        let songDiv=document.createElement("div"); songDiv.className="songBox";
+        songDiv.innerHTML=`<b>${song.name}</b> <button onclick="assignModule('${song.name}')">Assign Module</button>`;
+        div.appendChild(songDiv);
+    });
+}
+function assignModule(song){ alert("Assign module for "+song); }
+
+// ---- Space Chat ----
+function sendSpaceMessage(){
+    let input=document.getElementById("spaceChatInput").value.trim(); if(!input) return;
+    let space=spaces.find(s=>s.owner===currentUser.email); if(!space) return alert("No space");
+    if(!spaceChats[space.name]) spaceChats[space.name]=[];
+    spaceChats[space.name].push({sender:currentUser.email,type:"text",text:input,timestamp:new Date().toISOString()});
+    localStorage.setItem("spaceChats",JSON.stringify(spaceChats));
+    let output=document.getElementById("spaceChatOutput");
+    let msg=document.createElement("p"); msg.innerHTML=`<b>${currentUser.firstName} ${currentUser.lastName}:</b> ${input}`;
+    output.appendChild(msg); output.scrollTop=output.scrollHeight;
+    document.getElementById("spaceChatInput").value="";
+}
+function recordSpaceMessage(){ alert("Recording... implement actual logic"); }
+
+// ---- Choir Master ----
+function showMasterControl(){ if(currentUser.role!=="master") return alert("Only Choir Master can access"); alert("Master Control Page"); }
+
+// ---- Gemini Recording ----
+let mediaRecorder, recordedChunks=[];
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+        mediaRecorder = new MediaRecorder(stream); mediaRecorder.start();
+        recordedChunks = [];
+        mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
+        mediaRecorder.onstop = e => {
+            const blob = new Blob(recordedChunks,{type:'audio/webm'});
+            const url = URL.createObjectURL(blob);
+            appendAudioMessage(url);
+            appendSpaceAudio(url);
+        };
+        alert("Recording started...");
+    }).catch(err=>alert("Microphone access denied: "+err));
+}
+function stopRecording(){
+    if(mediaRecorder && mediaRecorder.state!=="inactive"){ mediaRecorder.stop(); alert("Recording stopped, uploaded!"); }
+}
+function appendAudioMessage(url){
+    let output = document.getElementById("chatOutput");
+    let msg = document.createElement("p");
+    msg.innerHTML=`<b>${currentUser.firstName} ${currentUser.lastName} (vocal):</b><br>`;
+    let audio=document.createElement("audio"); audio.controls=true; audio.src=url;
+    msg.appendChild(audio); output.appendChild(msg); output.scrollTop=output.scrollHeight;
+    if(!currentUserRecordings) currentUserRecordings=[]; currentUserRecordings.push({url,timestamp:new Date().toISOString()});
+}
+function appendSpaceAudio(url){
+    let space=spaces.find(s=>s.owner===currentUser.email); if(!space) return;
+    let output=document.getElementById("spaceChatOutput");
+    let msg=document.createElement("p");
+    msg.innerHTML=`<b>${currentUser.firstName} ${currentUser.lastName} (vocal):</b><br>`;
+    let audio=document.createElement("audio"); audio.controls=true; audio.src=url;
+    msg.appendChild(audio); output.appendChild(msg); output.scrollTop=output.scrollHeight;
+    if(!spaceChats[space.name]) spaceChats[space.name]=[];
+    spaceChats[space.name].push({sender:currentUser.email,type:"audio",url:url,timestamp:new Date().toISOString()});
+    localStorage.setItem("spaceChats",JSON.stringify(spaceChats));
+}
+</script>
+</body>
+</html>
+<div id="geminiFeedback" style="background:#fff;padding:10px;border:1px solid #ccc;margin-top:10px;min-height:100px;">
+<h4>AI Coaching Feedback</h4>
+<div id="feedbackOutput"></div>
+</div>
+function appendAudioMessage(url){
+    let output = document.getElementById("chatOutput");
+    let msg = document.createElement("p");
+    msg.innerHTML=`<b>${currentUser.firstName} ${currentUser.lastName} (vocal):</b><br>`;
+    let audio=document.createElement("audio"); audio.controls=true; audio.src=url;
+    msg.appendChild(audio); output.appendChild(msg); output.scrollTop=output.scrollHeight;
+
+    if(!currentUserRecordings) currentUserRecordings=[];
+    currentUserRecordings.push({url,timestamp:new Date().toISOString()});
+
+    // Trigger module-specific coaching
+    provideCoaching(url);
+}
+function provideCoaching(audioURL){
+    // Placeholder for real AI analysis
+    // We'll generate random tips to simulate analysis
+    const tips = [
+        "Try improving pitch in measures 5–7.",
+        "Your timing is slightly off; practice with a metronome.",
+        "Voice drops in high notes; focus on breath support.",
+        "Excellent tone! Keep it consistent.",
+        "Try slowing down this section for clarity.",
+        "Add more dynamics to the chorus for emotion."
+    ];
+
+    // Simulate analyzing recording
+    const randomTip = tips[Math.floor(Math.random()*tips.length)];
+
+    const feedbackOutput = document.getElementById("feedbackOutput");
+    const tipDiv = document.createElement("p");
+    tipDiv.innerHTML = `<b>Module Feedback:</b> ${randomTip}`;
+    feedbackOutput.appendChild(tipDiv);
+    feedbackOutput.scrollTop = feedbackOutput.scrollHeight;
+}
+<div id="signupForm">
+  <h2>Sign Up</h2>
+  <form id="formSignup">
+    <label>First Name:</label>
+    <input type="text" id="firstName" required><br><br>
+
+    <label>Last Name:</label>
+    <input type="text" id="lastName" required><br><br>
+
+    <label>Email:</label>
+    <input type="email" id="email" required><br><br>
+
+    <label>Phone Number:</label>
+    <input type="tel" id="phone" required><br><br>
+
+    <label>Choir Part:</label>
+    <select id="choirPart" required>
+      <option value="" disabled selected>Select your part</option>
+      <option value="Soprano">Soprano</option>
+      <option value="Alto">Alto</option>
+      <option value="Tenor">Tenor</option>
+      <option value="Bass">Bass</option>
+    </select><br><br>
+
+    <button type="submit">Sign Up</button>
+  </form>
+</div>
